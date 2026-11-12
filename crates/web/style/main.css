@@ -162,6 +162,8 @@ button.toggle {
   font-size: 13px;
 }
 .errors .hint { color: var(--muted); }
+.page.stale { opacity: .45; }
+.page + .errors { margin-top: 6px; }
 
 .editor {
   margin-top: 14px;

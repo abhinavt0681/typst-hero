@@ -215,7 +215,7 @@ later without rewriting anything.
    XP and levels, Stats page (heatmap, streak, levels by group).
    ✅ **M3b — Practice + Writing**: Practice page (categories; goals/time/endless;
    review inefficient goals), remaining Track 1 lessons.
-   **M3c — Polish**: keep last good render on error; optional Vim keystroke XP.
+   🟡 **M3c — Polish**: ✅ keep last good render on error; ⬜ optional Vim keystroke XP.
 4. **M4 — Stats & accounts**: per-feature levels, heatmap, streak; review-inefficient-goals
    screen; Postgres + SQLx, GitHub sign-in, progress sync.
 5. **M5 — Tracks 2–3**, CodeMirror editor, Project: Resume v1.
@@ -232,7 +232,7 @@ later without rewriting anything.
   highlighting from Typst's own parser.
 - Idea: in Vim mode, also score keystroke efficiency (VimHero-style) on top of
   Typst idiom efficiency.
-- While the learner's code has an error, keep showing the last good render
+- ✅ While the learner's code has an error, keep showing the last good render
   next to the error instead of replacing it.
 
 ## Appendix A — Capstone: continuous affidavit numbering

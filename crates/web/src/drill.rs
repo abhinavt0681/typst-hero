@@ -158,7 +158,7 @@ pub fn DrillWorkspace(
     view! {
         <div class="panes">
             <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
-            <Pane label="Your output" rendered=drill.output.into() />
+            <OutputPane output=drill.output />
         </div>
         <CodeEditor
             code=drill.code
@@ -225,6 +225,42 @@ pub fn Pane(label: &'static str, rendered: Signal<Result<Rendered, Vec<Diagnosti
                         }).collect_view()}
                     </ul>
                 }.into_any(),
+            }}
+        </figure>
+    }
+}
+
+/// The learner's output. While their code has an error (often just
+/// half-typed markup), keep showing the last good render, faded, with the
+/// error underneath, instead of flickering to an error message.
+#[component]
+fn OutputPane(output: Memo<Result<Rendered, Vec<Diagnostic>>>) -> impl IntoView {
+    let last_good = Memo::new(move |prev: Option<&Option<Rendered>>| match output.get() {
+        Ok(r) => Some(r),
+        Err(_) => prev.cloned().flatten(),
+    });
+    view! {
+        <figure class="pane">
+            <figcaption>"Your output"</figcaption>
+            {move || {
+                let errors = output.get().err();
+                let page = last_good.get().map(|r| view! {
+                    <div class="page" class:stale=errors.is_some() inner_html=r.pages.join("")></div>
+                });
+                view! {
+                    {page}
+                    {errors.map(|errs| view! {
+                        <ul class="errors">
+                            {errs.into_iter().filter(|d| d.is_error).map(|d| view! {
+                                <li>
+                                    {d.position.map(|(l, c)| format!("line {l}:{c} · "))}
+                                    {d.message}
+                                    {d.hints.into_iter().map(|h| view! { <div class="hint">"hint: " {h}</div> }).collect_view()}
+                                </li>
+                            }).collect_view()}
+                        </ul>
+                    })}
+                }
             }}
         </figure>
     }
