@@ -42,6 +42,26 @@ Typst has three modes — **markup** (default), **math** (`$…$`), **code** (`#
 The key insight, taught mid-course: *markup is sugar for function calls*
 (`*x*` ≡ `#strong[x]`), which is what makes set/show rules click.
 
+### Agreed after reviewing the official tutorial and the 0.15.1 docs (2026-11-13)
+
+- **Skill tree = Typst's syntax tables** (reference §3.1: markup, math, code):
+  ~72 skills, each levelled 0–10 like VimHero's 76 commands. Lessons and
+  drills are tagged with skills; efficient solutions earn XP for them.
+- **One growing document per track** (the tutorial's glacier-report idea:
+  write → format → style to a guide → template), *plus* the standalone
+  projects (resume, letter, invoice, legal, thesis).
+- **Style-guide compliance exercises**: a checklist ("level-1 headings 13pt,
+  centered, small caps; two columns; page numbers") verified item by item
+  against the compiled layout.
+- **LaTeX → Typst drills** for the largest audience (`\frac{a}{b}` → `a/b`),
+  based on the docs' LaTeX guide.
+- **Fill the tutorial's gaps**: a full tables module (Table guide), outline &
+  footnotes, loops & data, packages, local workflow. Never use before teaching.
+- Teach 0.15 idioms (`title`, `divider`, `path`); short accessibility lessons
+  (alt text, title vs heading); every chip links to its official docs page.
+- Lesson prose is our own (short, VimHero-style), not copied from the docs.
+- The docs PDF stays local and untracked (`*.pdf` in `.gitignore`).
+
 ### Track 1 — Writing
 1. Paragraphs & emphasis — blank lines, `*strong*`, `_emph_`, `` `raw` ``
 2. Escapes & comments — `\*`, `\#`, `//`, `/* */`
@@ -191,7 +211,11 @@ later without rewriting anything.
    (Ctrl+j/k), challenge timer, per-challenge stats (best / average / chart),
    progress in localStorage, sidebar checkmarks, fonts loaded on demand
    (download 14 MB → ~7 MB). ⬜ lesson prose in `content/` files.
-3. **M3 — Track 1 complete** + Practice page (goals/time/endless) + efficiency/XP.
+3. **M3a — Engine**: skill registry, lesson prose in `content/*.toml`, per-skill
+   XP and levels, Stats page (heatmap, streak, levels by group).
+   **M3b — Practice + Writing**: Practice page (categories; goals/time/endless;
+   review inefficient goals), remaining Track 1 lessons.
+   **M3c — Polish**: keep last good render on error; optional Vim keystroke XP.
 4. **M4 — Stats & accounts**: per-feature levels, heatmap, streak; review-inefficient-goals
    screen; Postgres + SQLx, GitHub sign-in, progress sync.
 5. **M5 — Tracks 2–3**, CodeMirror editor, Project: Resume v1.
