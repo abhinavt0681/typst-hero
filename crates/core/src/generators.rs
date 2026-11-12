@@ -254,28 +254,52 @@ const NOTES: &[&str] = &[
     "remove before submitting",
 ];
 
-/// Hide lines from the output without deleting them.
+/// (before, aside, after): the aside is hidden mid-line with `/* */`.
+const ASIDES_MIDLINE: &[(&str, &str, &str)] = &[
+    ("We tested it on Monday", "(draft: check the date)", "and it worked."),
+    ("The survey reached", "(TODO exact number)", "over a thousand people."),
+    ("Revenue grew", "(source: ask finance)", "by twelve percent."),
+    ("The new design is", "(still debating this word)", "simpler."),
+    ("Our model runs", "(FIXME confirm on the laptop)", "in under a second."),
+    ("The meeting is on Thursday", "(or Friday?)", "at noon."),
+];
+
+/// Hide lines or words from the output without deleting them. Three kinds
+/// of goal, each with a different ideal:
+/// - one or two separate lines: `//` on each line;
+/// - three or more lines in a row: one `/* … */` around them, which is
+///   shorter than `//` on every line;
+/// - words in the middle of a line: only `/* … */` can do that.
 pub fn comments(rng: &mut Rng) -> Goal {
-    let lines: Vec<&str> = rng
-        .distinct(NOTES.len(), 4)
-        .into_iter()
-        .map(|i| NOTES[i])
-        .collect();
-    let count = 1 + rng.below(2);
-    let hidden = rng.distinct(lines.len(), count);
-    let ideal: Vec<String> = lines
-        .iter()
-        .enumerate()
-        .map(|(i, l)| {
-            if hidden.contains(&i) {
-                format!("// {l}")
-            } else {
-                l.to_string()
-            }
-        })
-        .collect();
-    let required: Vec<&str> = hidden.iter().map(|&i| lines[i]).collect();
-    Goal::new(lines.join("\n\n"), ideal.join("\n\n"), vec!["comment"]).requiring(required)
+    match rng.below(3) {
+        0 => {
+            let lines: Vec<&str> = rng.distinct(NOTES.len(), 4).into_iter().map(|i| NOTES[i]).collect();
+            let count = 1 + rng.below(2);
+            let hidden = rng.distinct(lines.len(), count);
+            let ideal: Vec<String> = lines
+                .iter()
+                .enumerate()
+                .map(|(i, l)| if hidden.contains(&i) { format!("// {l}") } else { l.to_string() })
+                .collect();
+            let required: Vec<&str> = hidden.iter().map(|&i| lines[i]).collect();
+            Goal::new(lines.join("\n\n"), ideal.join("\n\n"), vec!["comment"]).requiring(required)
+        }
+        1 => {
+            let lines: Vec<&str> = rng.distinct(NOTES.len(), 6).into_iter().map(|i| NOTES[i]).collect();
+            let len = 3 + rng.below(2);
+            let first = rng.below(lines.len() - len + 1);
+            let hidden = &lines[first..first + len];
+            let mut ideal: Vec<String> = lines[..first].iter().map(|l| l.to_string()).collect();
+            ideal.push(format!("/* {} */", hidden.join("\n\n")));
+            ideal.extend(lines[first + len..].iter().map(|l| l.to_string()));
+            Goal::new(lines.join("\n\n"), ideal.join("\n\n"), vec!["comment"]).requiring(hidden.to_vec())
+        }
+        _ => {
+            let (before, aside, after) = *rng.pick(ASIDES_MIDLINE);
+            Goal::new(format!("{before} {aside} {after}"), format!("{before} /* {aside} */ {after}"), vec!["comment"])
+                .requiring([aside])
+        }
+    }
 }
 
 // ---------------------------------------------------------------- term lists

@@ -6,11 +6,14 @@ intro = """
 A comment is text in your source that never reaches the document. Use it for notes to yourself or to switch a paragraph off without losing it.
 
 `//` comments out the rest of the line. `/* ... */` can span several lines.
+
+Coming from C, C++, Java, JavaScript or Rust? You already know these: Typst comments work exactly the same, in markup, math and code. One Typst detail: in a link like `https://typst.app`, the `//` is part of the address, not a comment.
 """
 
 task = [
-  "Comment out the lines that are missing from the target.",
-  "Don't delete them: you'll want them back later.",
+  "Comment out whatever is missing from the target. Don't delete it: you'll want it back later.",
+  "Three or more lines in a row? One `/* … */` around them is shorter than `//` on every line.",
+  "Words in the middle of a line? Only `/* … */` can hide those.",
 ]
 
 [[chip]]
@@ -21,6 +24,12 @@ skill = "comment"
 
 [[chip]]
 syntax = "/* … */"
-meaning = "block comment"
-example = "Kept. /* Hidden,\neven across lines. */ Also kept."
+meaning = "block comment, across lines"
+example = "Kept.\n\n/* Hidden,\n\nall of this. */\n\nAlso kept."
+skill = "comment"
+
+[[chip]]
+syntax = "a /* b */ c"
+meaning = "block comment, mid-line"
+example = "Due Friday /* or Monday? */ at noon."
 skill = "comment"

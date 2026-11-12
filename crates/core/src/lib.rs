@@ -47,6 +47,16 @@ mod tests {
         assert_eq!(errs[0].position.map(|p| p.0), Some(2), "{errs:?}");
     }
 
+    /// The Comments lesson says `//` inside a URL is not a comment.
+    #[test]
+    fn urls_are_not_comments() {
+        let url = compile_str("Visit https://typst.app today").unwrap();
+        let link = compile_str("Visit #link(\"https://typst.app\") today").unwrap();
+        let cut = compile_str("Visit https:").unwrap();
+        assert!(url.looks_like(&link));
+        assert!(!url.looks_like(&cut));
+    }
+
     #[test]
     fn judge_rewards_concise_solutions() {
         let goal = Goal::new("a b c", "a *b* c", vec!["strong"]);
@@ -63,6 +73,26 @@ mod tests {
         );
         let plain = compile_str("a b c").unwrap();
         assert_eq!(judge(&goal, &target, &plain, "a b c"), Verdict::NotYet);
+    }
+
+    /// For three or more lines in a row, `//` on every line solves the goal
+    /// but `/* … */` is the efficient answer (as the Comments lesson says).
+    #[test]
+    fn block_comment_beats_line_comments() {
+        let goal = (0..200)
+            .map(|seed| generators::by_name("comments").unwrap()(&mut Rng::new(seed)))
+            .find(|g| g.ideal.contains("/*") && g.ideal.contains("\n\n") && g.require.len() >= 3)
+            .expect("a multi-line block comment goal");
+        let target = compile_str(&goal.ideal).unwrap();
+        let line_comments: String = goal
+            .start
+            .split("\n\n")
+            .map(|l| if goal.require.iter().any(|r| r == l) { format!("// {l}") } else { l.to_string() })
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        let out = compile_str(&line_comments).unwrap();
+        assert_eq!(judge(&goal, &target, &out, &line_comments), Verdict::Solved { efficient: false });
+        assert_eq!(judge(&goal, &target, &target, &goal.ideal), Verdict::Solved { efficient: true });
     }
 
     #[test]
