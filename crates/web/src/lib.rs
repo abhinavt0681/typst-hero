@@ -8,6 +8,7 @@
 
 pub mod app;
 mod challenge;
+pub mod fonts;
 mod lesson;
 mod time;
 

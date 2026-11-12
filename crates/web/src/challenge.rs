@@ -9,6 +9,7 @@ use leptos_router::components::A;
 use typst_hero_core::rng::Rng;
 use typst_hero_core::{Diagnostic, Goal, Lesson, Rendered, Verdict, compile_str, judge};
 
+use crate::fonts::use_fonts_ready;
 use crate::time::now_ms;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -46,8 +47,16 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
     let elapsed_ms = RwSignal::new(0.0);
     let editor = NodeRef::<html::Textarea>::new();
 
-    let target = Memo::new(move |_| goal.with(|g| compile_str(&g.ideal).ok()));
-    let output = Memo::new(move |_| code.with(|c| compile_str(c)));
+    // Recompile when fonts arrive, too (`ready.track()`).
+    let ready = use_fonts_ready();
+    let target = Memo::new(move |_| {
+        ready.track();
+        goal.with(|g| compile_str(&g.ideal).ok())
+    });
+    let output = Memo::new(move |_| {
+        ready.track();
+        code.with(|c| compile_str(c))
+    });
 
     let start = move || {
         rng.set_value(Rng::new(now_ms() as u64));
@@ -89,8 +98,15 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
             {move || match phase.get() {
                 Phase::Ready => view! {
                     <div class="ready">
-                        <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
-                        <button class="button" on:click=move |_| start()>"▶ Start challenge"</button>
+                        <Show
+                            when=move || ready.get()
+                            fallback=|| view! { <div class="pane placeholder">"Loading the Typst compiler…"</div> }
+                        >
+                            <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
+                        </Show>
+                        <button class="button" disabled=move || !ready.get() on:click=move |_| start()>
+                            {move || if ready.get() { "▶ Start challenge" } else { "Loading…" }}
+                        </button>
                         <p class="muted">{lesson.goals} " goals · a new one appears as soon as you match the target"</p>
                     </div>
                 }.into_any(),

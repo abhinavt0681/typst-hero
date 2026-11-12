@@ -4,6 +4,7 @@
 //! WebAssembly, to compile the learner's code on every keystroke).
 
 pub mod exercise;
+pub mod fonts;
 pub mod lessons;
 pub mod render;
 pub mod rng;
@@ -66,6 +67,13 @@ mod tests {
                 assert!(!start.looks_like(&target), "{}: start already solved", lesson.slug);
                 assert!(!goal.features.is_empty());
             }
+        }
+    }
+
+    #[test]
+    fn base_fonts_exist_on_the_server() {
+        for name in fonts::BASE_FONTS.iter().chain(fonts::MATH_FONTS) {
+            assert!(fonts::embedded_font_file(name).is_some(), "missing font {name}");
         }
     }
 

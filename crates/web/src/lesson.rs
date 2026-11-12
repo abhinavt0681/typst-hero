@@ -10,6 +10,7 @@ use typst_hero_core::lessons::{LESSONS, lesson};
 use typst_hero_core::{Lesson, compile_str};
 
 use crate::challenge::Challenge;
+use crate::fonts::use_fonts_ready;
 
 #[component]
 pub fn LessonPage() -> impl IntoView {
@@ -104,11 +105,17 @@ fn ChipRow(chip: &'static Chip) -> impl IntoView {
 /// Source on the left, its rendering on the right.
 #[component]
 fn Example(code: &'static str) -> impl IntoView {
-    let svg = compile_str(code).ok().and_then(|r| r.pages.into_iter().next()).unwrap_or_default();
+    let ready = use_fonts_ready();
+    let svg = move || {
+        ready.get().then(|| compile_str(code).ok().and_then(|r| r.pages.into_iter().next())).flatten()
+    };
     view! {
         <div class="example">
             <pre class="source">{code}</pre>
-            <div class="page" inner_html=svg></div>
+            {move || match svg() {
+                Some(svg) => view! { <div class="page" inner_html=svg></div> }.into_any(),
+                None => view! { <div class="page placeholder">"Loading…"</div> }.into_any(),
+            }}
         </div>
     }
 }

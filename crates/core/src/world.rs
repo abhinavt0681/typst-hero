@@ -5,13 +5,15 @@
 //! code runs natively (server, tests) and in the browser (WebAssembly).
 
 use std::collections::HashMap;
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 use typst::diag::{FileError, FileResult};
 use typst::foundations::{Bytes, Datetime, Duration};
 use typst::syntax::{FileId, RootedPath, Source, VirtualPath, VirtualRoot};
 use typst::text::{Font, FontBook};
 use typst::utils::LazyHash;
+
+use crate::fonts::{self, FontSet};
 use typst::{Library, LibraryExt, World};
 
 /// Name of the file holding the learner's code.
@@ -23,28 +25,13 @@ const MAIN_FILE: &str = "/main.typ";
 /// learner's file) means error line numbers match what the learner sees.
 /// The learner's own `#set page(...)` still wins, because it comes later.
 pub const PRELUDE: &str = "\
-#set page(width: 14cm, height: auto, margin: 12pt)
+#set page(width: 10cm, height: auto, margin: 10pt)
 #set text(size: 13pt)
 ";
 
-/// Fonts and the standard library are expensive to build, so we build them
-/// once per process (or per browser tab) and share them.
-struct Assets {
-    library: LazyHash<Library>,
-    book: LazyHash<FontBook>,
-    fonts: Vec<Font>,
-}
-
-static ASSETS: LazyLock<Assets> = LazyLock::new(|| {
-    let fonts: Vec<Font> = typst_assets::fonts()
-        .flat_map(|data| Font::iter(Bytes::new(data)))
-        .collect();
-    Assets {
-        library: LazyHash::new(Library::default()),
-        book: LazyHash::new(FontBook::from_fonts(&fonts)),
-        fonts,
-    }
-});
+/// The standard library is expensive to build, so we build it once per
+/// process (or browser tab) and share it.
+static LIBRARY: LazyLock<LazyHash<Library>> = LazyLock::new(|| LazyHash::new(Library::default()));
 
 fn file_id(path: &str) -> FileId {
     let vpath = VirtualPath::new(path).expect("static path is valid");
@@ -61,6 +48,7 @@ pub struct SandboxWorld {
     user: Source,
     /// Extra files (images, data) available to `#image`, `#yaml`, ...
     files: HashMap<FileId, Bytes>,
+    fonts: Arc<FontSet>,
     today: Option<(i32, u8, u8)>,
 }
 
@@ -71,6 +59,7 @@ impl SandboxWorld {
             main: Source::new(file_id(MAIN_FILE), main),
             user: Source::new(user_file_id(), user_code.to_string()),
             files: HashMap::new(),
+            fonts: fonts::current(),
             today: None,
         }
     }
@@ -94,11 +83,11 @@ impl SandboxWorld {
 
 impl World for SandboxWorld {
     fn library(&self) -> &LazyHash<Library> {
-        &ASSETS.library
+        &LIBRARY
     }
 
     fn book(&self) -> &LazyHash<FontBook> {
-        &ASSETS.book
+        &self.fonts.book
     }
 
     fn main(&self) -> FileId {
@@ -124,7 +113,7 @@ impl World for SandboxWorld {
     }
 
     fn font(&self, index: usize) -> Option<Font> {
-        ASSETS.fonts.get(index).cloned()
+        self.fonts.fonts.get(index).cloned()
     }
 
     fn today(&self, _offset: Option<Duration>) -> Option<Datetime> {

@@ -120,7 +120,13 @@ button.toggle {
 /* ---------- rendered Typst pages ---------- */
 
 .page { background: #fff; border-radius: 4px; overflow: hidden; line-height: 0; }
-.page svg { width: 100%; height: auto; }
+/* Natural size (1pt = 1.33px), shrinking only if the pane is narrower. */
+.page svg { width: auto; max-width: 100%; height: auto; display: block; }
+.placeholder {
+  line-height: 1.6; padding: 14px; color: var(--muted); background: var(--bg-raised);
+  border: 1px dashed var(--border); border-radius: 4px; font-size: 13px;
+}
+.button:disabled { opacity: .6; cursor: wait; filter: none; }
 
 /* ---------- challenge ---------- */
 

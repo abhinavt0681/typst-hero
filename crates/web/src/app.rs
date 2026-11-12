@@ -4,8 +4,10 @@ use leptos::prelude::*;
 use leptos_meta::{Meta, MetaTags, Stylesheet, Title, provide_meta_context};
 use leptos_router::components::{A, Route, Router, Routes};
 use leptos_router::{ParamSegment, StaticSegment};
+use typst_hero_core::fonts::BASE_FONTS;
 use typst_hero_core::lessons::LESSONS;
 
+use crate::fonts::{font_url, provide_fonts};
 use crate::lesson::LessonPage;
 
 /// The outer HTML document, rendered on the server.
@@ -18,6 +20,11 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <AutoReload options=options.clone() />
                 <HydrationScripts options />
+                // Start downloading fonts right away, alongside the WebAssembly.
+                {BASE_FONTS
+                    .iter()
+                    .map(|name| view! { <link rel="preload" href=font_url(name) r#as="fetch" crossorigin="anonymous" /> })
+                    .collect_view()}
                 <MetaTags />
             </head>
             <body>
@@ -30,6 +37,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
+    provide_fonts();
     view! {
         <Stylesheet id="leptos" href="/pkg/typst-hero.css" />
         <Title formatter=|t: String| if t.is_empty() { "typst-hero".into() } else { format!("{t} | typst-hero") } />
