@@ -12,6 +12,8 @@ typst-hero-core = { path = "../core", default-features = false }
 leptos = "0.8"
 leptos_router = "0.8"
 leptos_meta = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 # Server-only
 leptos_axum = { version = "0.8", optional = true }
@@ -24,7 +26,7 @@ console_error_panic_hook = { version = "0.1", optional = true }
 wasm-bindgen = { version = "0.2", optional = true }
 js-sys = { version = "0.3", optional = true }
 wasm-bindgen-futures = { version = "0.4", optional = true }
-web-sys = { version = "0.3", features = ["Window", "Response"], optional = true }
+web-sys = { version = "0.3", features = ["Window", "Response", "Storage"], optional = true }
 
 [features]
 hydrate = [

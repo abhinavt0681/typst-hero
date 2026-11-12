@@ -10,7 +10,14 @@ use typst_hero_core::rng::Rng;
 use typst_hero_core::{Diagnostic, Goal, Lesson, Rendered, Verdict, compile_str, judge};
 
 use crate::fonts::use_fonts_ready;
+use crate::progress::{Run, use_progress};
 use crate::time::now_ms;
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Tab {
+    Challenge,
+    Stats,
+}
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Phase {
@@ -46,6 +53,8 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
     let started_at = StoredValue::new(0.0);
     let elapsed_ms = RwSignal::new(0.0);
     let editor = NodeRef::<html::Textarea>::new();
+    let store = use_progress();
+    let tab = RwSignal::new(Tab::Challenge);
 
     // Recompile when fonts arrive, too (`ready.track()`).
     let ready = use_fonts_ready();
@@ -81,7 +90,10 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
         if let Verdict::Solved { efficient } = judge(&t, &o, &c, &g.ideal) {
             solved.update(|s| s.push(Solved { goal: g.clone(), code: c, efficient }));
             if solved.with_untracked(Vec::len) >= lesson.goals {
-                elapsed_ms.set(now_ms() - started_at.get_value());
+                let ms = now_ms() - started_at.get_value();
+                elapsed_ms.set(ms);
+                let efficient = solved.with_untracked(|s| s.iter().filter(|x| x.efficient).count());
+                store.record(lesson.slug, Run { ms, efficient, goals: lesson.goals, at: now_ms() });
                 phase.set(Phase::Done);
             } else {
                 let next = draw(Some(&g));
@@ -95,7 +107,17 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
 
     view! {
         <section class="challenge">
-            {move || match phase.get() {
+            <div class="tabs" role="tablist">
+                <button role="tab" class:active=move || tab.get() == Tab::Challenge on:click=move |_| tab.set(Tab::Challenge)>
+                    "Challenge"
+                </button>
+                <button role="tab" class:active=move || tab.get() == Tab::Stats on:click=move |_| tab.set(Tab::Stats)>
+                    "Stats"
+                </button>
+            </div>
+            {move || if tab.get() == Tab::Stats {
+                return view! { <ChallengeStats slug=lesson.slug /> }.into_any();
+            } else { match phase.get() {
                 Phase::Ready => view! {
                     <div class="ready">
                         <Show
@@ -134,7 +156,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                     </div>
                 }.into_any(),
                 Phase::Done => view! { <Summary solved elapsed_ms next_slug on_again=Callback::new(move |_| start()) /> }.into_any(),
-            }}
+            }}}
         </section>
     }
 }
@@ -195,5 +217,55 @@ fn Summary(
                 {next_slug.map(|slug| view! { <A href=format!("/lessons/{slug}") attr:class="button">"Next lesson →"</A> })}
             </div>
         </div>
+    }
+}
+
+/// Best time, recent average and a chart of every completion, like VimHero.
+#[component]
+fn ChallengeStats(slug: &'static str) -> impl IntoView {
+    let store = use_progress();
+    move || {
+        let times: Vec<f64> = store.with(|p| p.runs(slug).iter().map(|r| r.ms / 1000.0).collect());
+        if times.is_empty() {
+            return view! { <p class="muted empty">"Finish the challenge once to see your stats here."</p> }.into_any();
+        }
+        let best = times.iter().copied().fold(f64::INFINITY, f64::min);
+        let recent = &times[times.len().saturating_sub(15)..];
+        let average = recent.iter().sum::<f64>() / recent.len() as f64;
+        view! {
+            <div class="stats-row">
+                <div><small>"best time"</small><strong>{format!("{best:.1}s")}</strong></div>
+                <div><small>"recent average"</small><strong>{format!("{average:.1}s")}</strong><small>"last " {recent.len()} " runs"</small></div>
+                <div><small>"completions"</small><strong>{times.len()}</strong></div>
+            </div>
+            <TimeChart times />
+        }
+        .into_any()
+    }
+}
+
+/// A small line chart of completion times (lower is better), drawn as SVG.
+#[component]
+fn TimeChart(times: Vec<f64>) -> impl IntoView {
+    const W: f64 = 600.0;
+    const H: f64 = 180.0;
+    const PAD: f64 = 28.0;
+    let max = times.iter().copied().fold(1.0, f64::max) * 1.15;
+    let step = if times.len() > 1 { (W - 2.0 * PAD) / (times.len() - 1) as f64 } else { 0.0 };
+    let points: Vec<(f64, f64)> = times
+        .iter()
+        .enumerate()
+        .map(|(i, t)| (PAD + i as f64 * step, H - PAD - (t / max) * (H - 2.0 * PAD)))
+        .collect();
+    let line = points.iter().map(|(x, y)| format!("{x:.1},{y:.1}")).collect::<Vec<_>>().join(" ");
+    view! {
+        <svg class="chart" viewBox=format!("0 0 {W} {H}") role="img" aria-label="Completion times, lower is better">
+            <line x1=PAD y1=H - PAD x2=W - PAD y2=H - PAD class="axis" />
+            <text x=4 y=PAD + 4.0 class="label">{format!("{max:.0}s")}</text>
+            <text x=4 y=H - PAD + 4.0 class="label">"0s"</text>
+            <polyline points=line class="series" />
+            {points.into_iter().map(|(x, y)| view! { <circle cx=x cy=y r=3 class="dot" /> }).collect_view()}
+            <text x=W / 2.0 y=H - 6.0 class="label" text-anchor="middle">"completion times (lower is better)"</text>
+        </svg>
     }
 }

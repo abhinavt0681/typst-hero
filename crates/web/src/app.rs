@@ -9,6 +9,7 @@ use typst_hero_core::lessons::LESSONS;
 
 use crate::fonts::{font_url, provide_fonts};
 use crate::lesson::LessonPage;
+use crate::progress::{provide_progress, use_progress};
 
 /// The outer HTML document, rendered on the server.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -38,6 +39,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 pub fn App() -> impl IntoView {
     provide_meta_context();
     provide_fonts();
+    provide_progress();
     view! {
         <Stylesheet id="leptos" href="/pkg/typst-hero.css" />
         <Title formatter=|t: String| if t.is_empty() { "typst-hero".into() } else { format!("{t} | typst-hero") } />
@@ -76,6 +78,7 @@ fn Header() -> impl IntoView {
 
 #[component]
 fn Sidebar() -> impl IntoView {
+    let store = use_progress();
     view! {
         <aside class="sidebar">
             <p class="module">"Writing"</p>
@@ -84,8 +87,9 @@ fn Sidebar() -> impl IntoView {
                     .iter()
                     .map(|l| {
                         let href = format!("/lessons/{}", l.slug);
+                        let slug = l.slug;
                         view! {
-                            <li>
+                            <li class:done=move || store.with(|p| p.completed(slug))>
                                 <A href=href>{l.title}</A>
                             </li>
                         }

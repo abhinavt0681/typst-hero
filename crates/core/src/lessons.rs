@@ -156,15 +156,19 @@ fn gen_headings(rng: &mut Rng) -> Goal {
     Goal { start: start.join("\n\n"), ideal: ideal.join("\n\n"), features }
 }
 
-const LIST_ITEMS: &[&[&str]] = &[
-    &["milk", "eggs", "bread", "coffee"],
-    &["clone the repo", "install typst", "write the report", "export the pdf"],
-    &["preheat the oven", "mix the batter", "bake for twenty minutes"],
-    &["Rust", "Typst", "Postgres", "Neovim"],
+const LIST_POOLS: &[&[&str]] = &[
+    &["milk", "eggs", "bread", "coffee", "butter", "apples", "rice", "cheese"],
+    &["clone the repo", "install typst", "write the report", "export the pdf", "send it for review"],
+    &["preheat the oven", "mix the batter", "pour into the tin", "bake for twenty minutes", "let it cool"],
+    &["Rust", "Typst", "Postgres", "Neovim", "Linux", "Git"],
+    &["read the brief", "sketch ideas", "draft the layout", "collect feedback", "polish"],
 ];
 
 fn gen_lists(rng: &mut Rng) -> Goal {
-    let items = rng.pick(LIST_ITEMS);
+    let pool = rng.pick(LIST_POOLS);
+    let count = 3 + rng.below(2);
+    // Random items, kept in their natural order (recipes stay sensible).
+    let items: Vec<&str> = rng.distinct(pool.len(), count).into_iter().map(|i| pool[i]).collect();
     let (marker, feature) = if rng.below(2) == 0 { ("-", "list") } else { ("+", "enum") };
     let start = items.join("\n\n");
     let ideal = items.iter().map(|i| format!("{marker} {i}")).collect::<Vec<_>>().join("\n");

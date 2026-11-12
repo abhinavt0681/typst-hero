@@ -182,10 +182,12 @@ later without rewriting anything.
 
 ## 7. Milestones
 
-1. **M1 — Vertical slice**: workspace, core compiles Typst natively and in WASM,
+1. ✅ **M1 — Vertical slice**: workspace, core compiles Typst natively and in WASM,
    one lesson (Paragraphs & emphasis) with a live reproduce drill and a match check.
-2. **M2 — Lesson engine**: content files, chips, auto-played examples, lesson
-   navigation (Ctrl+j/k), challenge timer & per-challenge stats.
+2. 🟡 **M2 — Lesson engine**: ✅ chips, self-typing examples, lesson navigation
+   (Ctrl+j/k), challenge timer, per-challenge stats (best / average / chart),
+   progress in localStorage, sidebar checkmarks, fonts loaded on demand
+   (download 14 MB → ~7 MB). ⬜ lesson prose in `content/` files.
 3. **M3 — Track 1 complete** + Practice page (goals/time/endless) + efficiency/XP.
 4. **M4 — Stats & accounts**: per-feature levels, heatmap, streak; review-inefficient-goals
    screen; Postgres + SQLx, GitHub sign-in, progress sync.
@@ -193,6 +195,13 @@ later without rewriting anything.
 6. **M6 — Track 4** (transform exercises), resume v2, cover letter.
 7. **M7 — Track 5** (rule exercises with hidden variants), resume v3, invoice, legal.
 8. **M8 — Track 6**, packages/templates, reference pages, deploy.
+
+### Known issues / backlog
+- WASM is still ~6 MB (brotli). Remaining weight is Typst's built-in data
+  (hyphenation, CSL styles, syntax definitions) and code. Next steps: hashed
+  file names + immutable caching, compile in a Web Worker so the page is
+  usable while it loads, measure what can be trimmed.
+- The plain textarea will become CodeMirror (syntax highlighting, Vim mode).
 
 ## Appendix A — Capstone: continuous affidavit numbering
 

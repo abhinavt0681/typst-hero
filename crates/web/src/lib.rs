@@ -6,10 +6,15 @@
 //! - in the browser (`hydrate` feature, compiled to WebAssembly) to attach
 //!   interactivity to that HTML. From then on, Typst compiles locally.
 
+// Leptos encodes the whole view tree in types; release builds of nested
+// pages need a deeper limit than the default 128.
+#![recursion_limit = "256"]
+
 pub mod app;
 mod challenge;
 pub mod fonts;
 mod lesson;
+mod progress;
 mod time;
 
 #[cfg(feature = "hydrate")]

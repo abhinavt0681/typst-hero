@@ -102,19 +102,48 @@ fn ChipRow(chip: &'static Chip) -> impl IntoView {
     }
 }
 
-/// Source on the left, its rendering on the right.
+/// The example types itself out while the preview updates live, so you see
+/// exactly when the markup takes effect (like VimHero's replayed keystrokes).
 #[component]
 fn Example(code: &'static str) -> impl IntoView {
+    const MS_PER_CHAR: u64 = 45;
     let ready = use_fonts_ready();
-    let svg = move || {
-        ready.get().then(|| compile_str(code).ok().and_then(|r| r.pages.into_iter().next())).flatten()
+    let chars: Vec<char> = code.chars().collect();
+    let total = chars.len();
+    let shown = RwSignal::new(0usize);
+    // The last prefix that compiled. Half-typed markup like `*bold` is an
+    // error, so the preview keeps showing the previous good state.
+    let last_good = RwSignal::new(None::<String>);
+
+    let tick = move || {
+        if !ready.get_untracked() || shown.get_untracked() >= total {
+            return;
+        }
+        let n = shown.get_untracked() + 1;
+        shown.set(n);
+        let prefix: String = chars[..n].iter().collect();
+        if let Ok(r) = compile_str(&prefix) {
+            last_good.set(r.pages.into_iter().next());
+        }
     };
+    if let Ok(handle) = set_interval_with_handle(tick, std::time::Duration::from_millis(MS_PER_CHAR)) {
+        on_cleanup(move || handle.clear());
+    }
+
+    let typed = move || code.chars().take(shown.get()).collect::<String>();
+    let done = move || shown.get() >= total;
     view! {
         <div class="example">
-            <pre class="source">{code}</pre>
-            {move || match svg() {
+            <div class="source">
+                <div class="source-head">
+                    <span class="muted">"input"</span>
+                    <button class="toggle" on:click=move |_| { shown.set(0); last_good.set(None); }>"↻ replay"</button>
+                </div>
+                <pre>{typed}<span class="cursor" class:idle=done></span></pre>
+            </div>
+            {move || match last_good.get() {
                 Some(svg) => view! { <div class="page" inner_html=svg></div> }.into_any(),
-                None => view! { <div class="page placeholder">"Loading…"</div> }.into_any(),
+                None => view! { <div class="page placeholder">{move || if ready.get() { "" } else { "Loading…" }}</div> }.into_any(),
             }}
         </div>
     }

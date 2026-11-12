@@ -70,6 +70,19 @@ mod tests {
         }
     }
 
+    /// Goals must not repeat too often, or learners memorize answers.
+    #[test]
+    fn generators_have_variety() {
+        for lesson in LESSONS {
+            let mut rng = Rng::new(7);
+            let mut seen = std::collections::HashSet::new();
+            for _ in 0..50 {
+                seen.insert((lesson.generate)(&mut rng).ideal);
+            }
+            assert!(seen.len() >= 25, "{}: only {} distinct goals in 50", lesson.slug, seen.len());
+        }
+    }
+
     #[test]
     fn base_fonts_exist_on_the_server() {
         for name in fonts::BASE_FONTS.iter().chain(fonts::MATH_FONTS) {

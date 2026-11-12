@@ -59,6 +59,8 @@ code, kbd {
 .sidebar li { margin: 4px 0; }
 .sidebar a { color: var(--text); }
 .sidebar a[aria-current] { color: var(--accent); }
+.sidebar li.done::marker { color: var(--accent); }
+.sidebar li.done a::after { content: " ✓"; color: var(--accent); }
 
 .content { padding: 32px 40px 80px; max-width: 920px; }
 
@@ -111,9 +113,15 @@ button.toggle {
   border-bottom-width: 3px;
 }
 .example { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-.example .source {
-  margin: 0; padding: 12px; background: var(--bg-sunk); border-radius: 6px; white-space: pre-wrap;
+.example .source { padding: 10px 12px; background: var(--bg-sunk); border-radius: 6px; }
+.source-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.example pre { margin: 8px 0 0; white-space: pre-wrap; font-size: 16px; }
+.cursor {
+  display: inline-block; width: .55em; height: 1.15em; vertical-align: text-bottom;
+  background: var(--accent); margin-left: 1px;
 }
+.cursor.idle { animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 
 .task { color: var(--muted); }
 
@@ -203,3 +211,19 @@ button.toggle {
 @media (max-width: 760px) {
   .panes, .example { grid-template-columns: 1fr; }
 }
+
+/* ---------- challenge tabs & stats ---------- */
+
+.tabs { display: flex; gap: 4px; margin: -6px 0 16px; }
+.tabs button {
+  background: none; border: 0; color: var(--muted); font: 13px var(--mono);
+  padding: 6px 14px; border-radius: 6px; cursor: pointer;
+}
+.tabs button.active { background: var(--bg-raised); color: var(--text); }
+.empty { text-align: center; padding: 32px 0; }
+.stats-row small + strong + small { display: block; margin-top: -4px; }
+.chart { width: 100%; height: auto; margin-top: 8px; }
+.chart .axis { stroke: var(--border); }
+.chart .series { fill: none; stroke: #f07178; stroke-width: 2; }
+.chart .dot { fill: #f07178; }
+.chart .label { fill: var(--muted); font: 11px var(--mono); }
