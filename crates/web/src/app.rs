@@ -1,0 +1,104 @@
+//! Page shell, routes and shared layout.
+
+use leptos::prelude::*;
+use leptos_meta::{Meta, MetaTags, Stylesheet, Title, provide_meta_context};
+use leptos_router::components::{A, Route, Router, Routes};
+use leptos_router::{ParamSegment, StaticSegment};
+use typst_hero_core::lessons::LESSONS;
+
+use crate::lesson::LessonPage;
+
+/// The outer HTML document, rendered on the server.
+pub fn shell(options: LeptosOptions) -> impl IntoView {
+    view! {
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <AutoReload options=options.clone() />
+                <HydrationScripts options />
+                <MetaTags />
+            </head>
+            <body>
+                <App />
+            </body>
+        </html>
+    }
+}
+
+#[component]
+pub fn App() -> impl IntoView {
+    provide_meta_context();
+    view! {
+        <Stylesheet id="leptos" href="/pkg/typst-hero.css" />
+        <Title formatter=|t: String| if t.is_empty() { "typst-hero".into() } else { format!("{t} | typst-hero") } />
+        <Meta name="description" content="Learn Typst by doing: interactive lessons and drills that build real fluency." />
+        <Router>
+            <Header />
+            <div class="layout">
+                <Sidebar />
+                <main class="content">
+                    <Routes fallback=|| view! { <p>"Page not found."</p> }>
+                        <Route path=StaticSegment("") view=HomePage />
+                        <Route path=(StaticSegment("lessons"), ParamSegment("slug")) view=LessonPage />
+                    </Routes>
+                </main>
+            </div>
+        </Router>
+    }
+}
+
+#[component]
+fn Header() -> impl IntoView {
+    view! {
+        <header class="topbar">
+            <A href="/" attr:class="logo">
+                <span class="logo-mark">"#"</span>
+                "typst-hero"
+            </A>
+            <nav>
+                <A href="/lessons/emphasis">"Lessons"</A>
+                <span class="soon" title="Coming in milestone 3">"Practice"</span>
+                <span class="soon" title="Coming in milestone 4">"Stats"</span>
+            </nav>
+        </header>
+    }
+}
+
+#[component]
+fn Sidebar() -> impl IntoView {
+    view! {
+        <aside class="sidebar">
+            <p class="module">"Writing"</p>
+            <ol>
+                {LESSONS
+                    .iter()
+                    .map(|l| {
+                        let href = format!("/lessons/{}", l.slug);
+                        view! {
+                            <li>
+                                <A href=href>{l.title}</A>
+                            </li>
+                        }
+                    })
+                    .collect_view()}
+            </ol>
+        </aside>
+    }
+}
+
+#[component]
+fn HomePage() -> impl IntoView {
+    view! {
+        <Title text="" />
+        <section class="hero">
+            <h1>"Learn Typst. Make it stick."</h1>
+            <p>
+                "Short lessons, a real editor, and drills that are different every time. "
+                "Earn XP only when your solution is as clean as the ideal one."
+            </p>
+            <A href="/lessons/emphasis" attr:class="button">"Start learning"</A>
+        </section>
+    }
+}

@@ -1,0 +1,34 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/web"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+# Size-optimized profile for the browser (WebAssembly) build.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+# cargo-leptos configuration: builds the server (`ssr`) and the browser
+# bundle (`hydrate`) from the same crate.
+[[workspace.metadata.leptos]]
+name = "typst-hero"
+bin-package = "typst-hero-web"
+lib-package = "typst-hero-web"
+output-name = "typst-hero"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+style-file = "crates/web/style/main.css"
+assets-dir = "crates/web/public"
+site-addr = "127.0.0.1:3000"
+reload-port = 3001
+bin-features = ["ssr"]
+bin-default-features = false
+lib-features = ["hydrate"]
+lib-default-features = false
+lib-profile-release = "wasm-release"

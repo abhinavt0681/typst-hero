@@ -1,0 +1,10 @@
+[package]
+name = "typst-hero-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+typst = "0.15.1"
+typst-assets = { version = "0.15.1", features = ["fonts"] }
+typst-layout = "0.15.1"
+typst-svg = "0.15.1"
