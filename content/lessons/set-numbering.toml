@@ -1,0 +1,26 @@
+title = "Numbering"
+generator = "set-numbering"
+goals = 6
+
+intro = """
+`#set heading(numbering: "1.")` numbers every heading. The pattern decides the style: `"1."`, `"I."`, `"A."`, or `"1.1"` for nested levels.
+
+Lists work the same way: `#set enum(numbering: "a)")` letters a numbered list, and `#set list(marker: [--])` changes bullets.
+"""
+
+task = [
+  "Add the numbering or marker shown in the target.",
+  "Check the pattern carefully: punctuation is part of it.",
+]
+
+[[chip]]
+syntax = "#set heading(numbering: \"1.\")"
+meaning = "numbered headings"
+example = "#set heading(numbering: \"1.\")\n= Intro\n= Method"
+skill = "set"
+
+[[chip]]
+syntax = "#set enum(numbering: \"a)\")"
+meaning = "lettered lists"
+example = "#set enum(numbering: \"a)\")\n+ first\n+ second"
+skill = "str"

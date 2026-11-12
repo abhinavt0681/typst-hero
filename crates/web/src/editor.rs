@@ -149,7 +149,11 @@ mod browser {
             let generation = reset.get();
             if prev.is_some() {
                 with_editor(&|e| {
-                    e.set_doc(&code.get_untracked());
+                    let text = code.get_untracked();
+                    e.set_doc(&text);
+                    // The highlight effect may have run before the text was
+                    // replaced; highlight the new text now.
+                    highlight(e, &text);
                     e.focus();
                 });
             }

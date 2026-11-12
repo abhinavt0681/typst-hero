@@ -51,7 +51,12 @@ fn LessonView(index: usize, lesson: &'static Lesson) -> impl IntoView {
     view! {
         <Title text=lesson.title.clone() />
         <article class="lesson">
-            <p class="eyebrow">{module_of(lesson).map(|m| m.title.as_str())} " · lesson " {index + 1}</p>
+            <p class="eyebrow">
+                {module_of(lesson).map(|m| {
+                    let n = m.lessons.iter().position(|&i| i == index).map_or(index, |p| p) + 1;
+                    format!("{} · lesson {n} of {}", m.title, m.lessons.len())
+                })}
+            </p>
             <h1>{lesson.title.as_str()}</h1>
             {lesson.intro.iter().map(|p| view! { <p>{rich(p.as_str())}</p> }).collect_view()}
 

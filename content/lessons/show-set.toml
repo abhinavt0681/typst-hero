@@ -1,0 +1,26 @@
+title = "Show-Set Rules"
+generator = "show-set"
+goals = 6
+
+intro = """
+A set rule changes everything. A show-set rule changes one kind of element: `#show heading: set text(blue)` makes only headings blue.
+
+The part before the colon is the selector: `heading`, `strong`, `emph` and so on. After it comes an ordinary set rule.
+"""
+
+task = [
+  "Style only the elements that differ in the target.",
+  "One show-set rule per change.",
+]
+
+[[chip]]
+syntax = "#show heading: set text(blue)"
+meaning = "style only headings"
+example = "#show heading: set text(blue)\n= Blue heading\nBlack text."
+skill = "show-set"
+
+[[chip]]
+syntax = "#show strong: set text(red)"
+meaning = "style only strong text"
+example = "#show strong: set text(red)\nThis is *important*."
+skill = "show-set"

@@ -1,0 +1,26 @@
+title = "Page Setup"
+generator = "set-page"
+goals = 6
+
+intro = """
+`#set page(...)` styles the page itself: `numbering: "1"` adds page numbers, `margin: 2cm` sets the margins, `header: [...]` puts content at the top of every page.
+
+The numbering pattern can include text: `"1 / 1"` shows the page and the total.
+"""
+
+task = [
+  "Set up the page like the target.",
+  "Look at the margins, the header and the bottom of the page.",
+]
+
+[[chip]]
+syntax = "#set page(numbering: \"1\")"
+meaning = "page numbers"
+example = "#set page(numbering: \"1\")\nPage one."
+skill = "set"
+
+[[chip]]
+syntax = "#set page(header: […])"
+meaning = "page header"
+example = "#set page(header: [Draft])\nA report."
+skill = "content-block"

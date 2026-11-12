@@ -42,3 +42,17 @@ lessons = [
   "latex",
   "math-review",
 ]
+
+[[module]]
+id = "styling"
+title = "Styling"
+lessons = [
+  "set-text",
+  "set-par",
+  "set-numbering",
+  "set-page",
+  "show-set",
+  "show-fn",
+  "style-guide",
+  "styling-review",
+]

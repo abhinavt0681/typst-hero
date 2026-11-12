@@ -6,6 +6,7 @@ use crate::rng::Rng;
 
 mod functions;
 mod math;
+mod styling;
 
 /// Finds a generator by the name used in lesson files.
 pub fn by_name(name: &str) -> Option<fn(&mut Rng) -> Goal> {
@@ -34,6 +35,14 @@ pub fn by_name(name: &str) -> Option<fn(&mut Rng) -> Goal> {
         "math-alignment" => math::alignment,
         "latex" => math::latex,
         "math-review" => math::review,
+        "set-text" => styling::set_text,
+        "set-par" => styling::set_par,
+        "set-numbering" => styling::set_numbering,
+        "set-page" => styling::set_page,
+        "show-set" => styling::show_set,
+        "show-fn" => styling::show_fn,
+        "style-guide" => styling::style_guide,
+        "styling-review" => styling::review,
         _ => return None,
     })
 }

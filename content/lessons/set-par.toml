@@ -1,0 +1,26 @@
+title = "Paragraphs"
+generator = "set-par"
+goals = 6
+
+intro = """
+`#set par(...)` controls paragraphs. `justify: true` aligns both edges, like a book. `leading` is the space between lines, `spacing` the space between paragraphs.
+
+`first-line-indent` indents each paragraph's first line, a common alternative to spacing.
+"""
+
+task = [
+  "Match the target's paragraph style with a set rule.",
+  "Look at the right edge, the line spacing and the indents.",
+]
+
+[[chip]]
+syntax = "#set par(justify: true)"
+meaning = "justified paragraphs"
+example = "#set par(justify: true)\nJustified text lines up on both the left and the right edge, so the page looks tidy like a printed book."
+skill = "set"
+
+[[chip]]
+syntax = "leading: 1.2em"
+meaning = "space between lines"
+example = "#set par(leading: 1.2em)\nWider line spacing makes long text easier on the eyes for some readers."
+skill = "length"

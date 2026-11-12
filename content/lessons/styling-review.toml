@@ -1,0 +1,12 @@
+title = "Styling Review"
+generator = "styling-review"
+goals = 8
+
+intro = """
+Everything from this module: set rules for text, paragraphs, numbering and pages; show-set rules; show rules; style guides.
+"""
+
+task = [
+  "Work out which rule each target needs.",
+  "One rule beats styling by hand, every time.",
+]

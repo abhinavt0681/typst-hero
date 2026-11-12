@@ -1,0 +1,14 @@
+title = "Style Guides"
+generator = "style-guide"
+goals = 5
+
+intro = """
+Journals, conferences and companies publish style guides: numbered headings, justified text, page numbers. Typst turns each requirement into one rule.
+
+Each goal shows a checklist. Meet every item with set and show rules at the top of the document.
+"""
+
+task = [
+  "Read the checklist above the target and write one rule per item.",
+  "The order of the rules doesn't matter here.",
+]

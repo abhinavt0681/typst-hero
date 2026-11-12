@@ -1,0 +1,26 @@
+title = "Set Rules"
+generator = "set-text"
+goals = 6
+
+intro = """
+Styling every word by hand doesn't scale. A set rule changes the default for everything after it: `#set text(blue)` makes all following text blue.
+
+Set rules take the same arguments as the function they set. They usually go at the top of the document.
+"""
+
+task = [
+  "Add one set rule that makes the document look like the target.",
+  "Styling words one by one won't count: use `#set`.",
+]
+
+[[chip]]
+syntax = "#set text(blue)"
+meaning = "default text color"
+example = "#set text(blue)\nEverything is blue now."
+skill = "set"
+
+[[chip]]
+syntax = "#set text(15pt)"
+meaning = "default text size"
+example = "#set text(15pt)\nBigger text everywhere."
+skill = "set"

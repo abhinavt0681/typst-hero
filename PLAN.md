@@ -222,7 +222,9 @@ later without rewriting anything.
    images, figures, tables, alignment & spacing, review), ✅ Math module (math
    mode, scripts & fractions, symbols, functions, multi-line, LaTeX → Typst,
    review), ✅ CodeMirror editor. ⬜ links/labels/references, ⬜ Project: Resume v1.
-6. **M6 — Track 4** (transform exercises), resume v2, cover letter.
+6. 🟡 **M6 — Track 4**: ✅ Styling module (set text/par/numbering/page,
+   show-set, show rules, style-guide checklists, review). ⬜ scoping,
+   layout (grid, columns, place), resume v2, cover letter.
 7. **M7 — Track 5** (rule exercises with hidden variants), resume v3, invoice, legal.
 8. **M8 — Track 6**, packages/templates, reference pages, deploy.
 

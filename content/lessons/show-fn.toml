@@ -1,0 +1,26 @@
+title = "Show Rules"
+generator = "show-fn"
+goals = 6
+
+intro = """
+A show rule can do more than set properties. `#show "Typst": smallcaps` passes every match to a function. `#show heading: underline` underlines every heading.
+
+It can also replace matches entirely: `#show "ACME": [Acme Corporation]` writes out the full name wherever the short one appears.
+"""
+
+task = [
+  "Transform or replace the matching text like the target.",
+  "Look for a word that repeats, or for the headings.",
+]
+
+[[chip]]
+syntax = "#show \"word\": smallcaps"
+meaning = "apply a function to matches"
+example = "#show \"Typst\": smallcaps\nTypst is great. I like Typst."
+skill = "show-fn"
+
+[[chip]]
+syntax = "#show \"x\": [y]"
+meaning = "replace text"
+example = "#show \"ACME\": [Acme Corp.]\nWelcome to ACME."
+skill = "show-fn"
