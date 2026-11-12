@@ -11,6 +11,8 @@ use leptos::prelude::*;
 ///   when a new goal starts) and returns Vim to normal mode.
 /// - `vim` turns Vim keybindings on and off live; `mode` receives the current
 ///   Vim mode ("normal", "insert", "visual", ... or "" when Vim is off).
+/// - `relative` switches relative line numbers; `on_relative` is called when
+///   the learner changes them from Vim with `:set rnu` / `:set nornu`.
 #[component]
 pub fn CodeEditor(
     code: RwSignal<String>,
@@ -18,13 +20,15 @@ pub fn CodeEditor(
     on_edit: Callback<()>,
     vim: Signal<bool>,
     mode: RwSignal<String>,
+    relative: Signal<bool>,
+    on_relative: Callback<bool>,
 ) -> impl IntoView {
     let container = NodeRef::<html::Div>::new();
 
     #[cfg(feature = "hydrate")]
-    browser::attach(container, code, reset, on_edit, vim, mode);
+    browser::attach(browser::Props { container, code, reset, on_edit, vim, mode, relative, on_relative });
     #[cfg(not(feature = "hydrate"))]
-    let _ = (code, reset, on_edit, vim, mode);
+    let _ = (code, reset, on_edit, vim, mode, relative, on_relative);
 
     view! { <div class="editor" node_ref=container></div> }
 }
@@ -46,8 +50,10 @@ mod browser {
             parent: &web_sys::HtmlElement,
             doc: &str,
             vim: bool,
+            relative: bool,
             on_change: &js_sys::Function,
             on_mode: &js_sys::Function,
+            on_relative: &js_sys::Function,
         ) -> Editor;
 
         #[wasm_bindgen(method, js_name = setDoc)]
@@ -55,6 +61,9 @@ mod browser {
 
         #[wasm_bindgen(method, js_name = setVim)]
         fn set_vim(this: &Editor, enabled: bool);
+
+        #[wasm_bindgen(method, js_name = setRelative)]
+        fn set_relative(this: &Editor, relative: bool);
 
         #[wasm_bindgen(method, js_name = setHighlights)]
         fn set_highlights(this: &Editor, ranges: Vec<u32>, classes: Vec<String>);
@@ -71,6 +80,18 @@ mod browser {
         editor: Editor,
         _on_change: Closure<dyn FnMut(String)>,
         _on_mode: Closure<dyn FnMut(String)>,
+        _on_relative: Closure<dyn FnMut(bool)>,
+    }
+
+    pub struct Props {
+        pub container: NodeRef<html::Div>,
+        pub code: RwSignal<String>,
+        pub reset: Signal<u64>,
+        pub on_edit: Callback<()>,
+        pub vim: Signal<bool>,
+        pub mode: RwSignal<String>,
+        pub relative: Signal<bool>,
+        pub on_relative: Callback<bool>,
     }
 
     fn highlight(editor: &Editor, code: &str) {
@@ -87,14 +108,8 @@ mod browser {
         editor.set_highlights(ranges, classes);
     }
 
-    pub fn attach(
-        container: NodeRef<html::Div>,
-        code: RwSignal<String>,
-        reset: Signal<u64>,
-        on_edit: Callback<()>,
-        vim: Signal<bool>,
-        mode: RwSignal<String>,
-    ) {
+    pub fn attach(props: Props) {
+        let Props { container, code, reset, on_edit, vim, mode, relative, on_relative } = props;
         let live = StoredValue::new_local(None::<Live>);
         let with_editor = move |f: &dyn Fn(&Editor)| live.with_value(|l| l.as_ref().map(|l| f(&l.editor)));
 
@@ -109,16 +124,24 @@ mod browser {
                 on_edit.run(());
             });
             let on_mode = Closure::<dyn FnMut(String)>::new(move |m: String| mode.set(m));
+            let on_rel = Closure::<dyn FnMut(bool)>::new(move |r: bool| on_relative.run(r));
             let editor = Editor::new(
                 el.unchecked_ref(),
                 &code.get_untracked(),
                 vim.get_untracked(),
+                relative.get_untracked(),
                 on_change.as_ref().unchecked_ref(),
                 on_mode.as_ref().unchecked_ref(),
+                on_rel.as_ref().unchecked_ref(),
             );
             highlight(&editor, &code.get_untracked());
             editor.focus();
-            live.set_value(Some(Live { editor, _on_change: on_change, _on_mode: on_mode }));
+            live.set_value(Some(Live {
+                editor,
+                _on_change: on_change,
+                _on_mode: on_mode,
+                _on_relative: on_rel,
+            }));
         });
 
         // New goal: replace the text. (Skips the first run, which is creation.)
@@ -142,6 +165,12 @@ mod browser {
         Effect::new(move |_| {
             let enabled = vim.get();
             with_editor(&|e| e.set_vim(enabled));
+        });
+
+        // Toggle relative line numbers live.
+        Effect::new(move |_| {
+            let on = relative.get();
+            with_editor(&|e| e.set_relative(on));
         });
 
         on_cleanup(move || {

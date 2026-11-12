@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 pub struct Settings {
     /// Vim keybindings in the editor.
     pub vim: bool,
+    /// Relative line numbers (Vim's `relativenumber`).
+    pub relative_numbers: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -17,6 +19,11 @@ impl SettingsStore {
     pub fn vim(&self) -> Signal<bool> {
         let s = self.0;
         Signal::derive(move || s.with(|s| s.vim))
+    }
+
+    pub fn relative_numbers(&self) -> Signal<bool> {
+        let s = self.0;
+        Signal::derive(move || s.with(|s| s.relative_numbers))
     }
 
     pub fn update(&self, f: impl FnOnce(&mut Settings)) {

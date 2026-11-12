@@ -191,7 +191,8 @@ button.toggle {
 .statusline .mode[data-mode^="insert"] { background: var(--accent); }
 .statusline .mode[data-mode^="visual"] { background: #c792ea; }
 .statusline .mode[data-mode="replace"] { background: var(--error); }
-.vim-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; margin-left: auto; }
+.vim-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.statusline .vim-toggle:first-of-type { margin-left: auto; }
 .vim-toggle input { accent-color: var(--accent); }
 
 

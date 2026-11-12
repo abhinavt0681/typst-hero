@@ -6,7 +6,16 @@
 // class; see `crates/web/src/editor.rs`.
 
 import { Annotation, Compartment, EditorState, StateEffect, StateField } from "@codemirror/state";
-import { Decoration, EditorView, drawSelection, highlightActiveLine, keymap, lineNumbers } from "@codemirror/view";
+import {
+  Decoration,
+  EditorView,
+  GutterMarker,
+  drawSelection,
+  gutter,
+  highlightActiveLine,
+  keymap,
+  lineNumbers,
+} from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { Vim, getCM, vim } from "@replit/codemirror-vim";
 
@@ -30,6 +39,49 @@ const mark = (cls) => {
   return marks.get(cls);
 };
 
+// Relative line numbers, like Neovim's `number` + `relativenumber`: the
+// cursor's line shows its real number, others show their distance from it.
+class NumberMarker extends GutterMarker {
+  constructor(text) {
+    super();
+    this.text = text;
+  }
+  eq(other) {
+    return other.text === this.text;
+  }
+  toDOM() {
+    return document.createTextNode(this.text);
+  }
+}
+
+function relativeLineNumbers() {
+  return gutter({
+    class: "cm-lineNumbers",
+    lineMarker(view, line) {
+      const doc = view.state.doc;
+      const n = doc.lineAt(line.from).number;
+      const current = doc.lineAt(view.state.selection.main.head).number;
+      return new NumberMarker(String(n === current ? n : Math.abs(n - current)));
+    },
+    lineMarkerChange: (update) => update.selectionSet || update.docChanged,
+    initialSpacer: (view) => new NumberMarker(String(view.state.doc.lines)),
+    updateSpacer: (_spacer, update) => new NumberMarker(String(update.view.state.doc.lines)),
+  });
+}
+
+const numbersFor = (relative) => (relative ? relativeLineNumbers() : lineNumbers());
+
+// `:set rnu`, `:set nornu`, `:set relativenumber`, `:set rnu?` in Vim mode.
+// Vim options are global, so the option talks to the editor that owns `cm`.
+const editors = new WeakMap();
+let relativeDefault = false;
+Vim.defineOption("relativenumber", false, "boolean", ["rnu"], (value, cm) => {
+  const editor = cm && editors.get(cm.cm6);
+  if (value === undefined) return editor ? editor.relative : relativeDefault;
+  if (editor) editor.setRelative(value, true);
+  else relativeDefault = value;
+});
+
 const theme = EditorView.theme(
   {
     "&": { backgroundColor: "var(--bg)", color: "var(--text)", fontSize: "16px", borderRadius: "6px" },
@@ -48,10 +100,13 @@ const theme = EditorView.theme(
 );
 
 export class Editor {
-  constructor(parent, doc, vimEnabled, onChange, onMode) {
+  constructor(parent, doc, vimEnabled, relative, onChange, onMode, onRelative) {
     this.onMode = onMode;
+    this.onRelative = onRelative;
     this.vimEnabled = vimEnabled;
+    this.relative = relative;
     this.keys = new Compartment();
+    this.numbers = new Compartment();
     this.view = new EditorView({
       parent,
       state: EditorState.create({
@@ -59,7 +114,7 @@ export class Editor {
         extensions: [
           // Vim must come first so it sees keys before the default keymap.
           this.keys.of(vimEnabled ? vim() : []),
-          lineNumbers(),
+          this.numbers.of(numbersFor(relative)),
           history(),
           drawSelection(),
           highlightActiveLine(),
@@ -74,7 +129,17 @@ export class Editor {
         ],
       }),
     });
+    editors.set(this.view, this);
     this.watchMode();
+  }
+
+  // Switch relative line numbers. `fromVim` = changed with `:set`, so tell
+  // Rust to remember it.
+  setRelative(relative, fromVim = false) {
+    if (relative === this.relative) return;
+    this.relative = relative;
+    this.view.dispatch({ effects: this.numbers.reconfigure(numbersFor(relative)) });
+    if (fromVim) this.onRelative(relative);
   }
 
   // Reports the Vim mode ("normal", "insert", "visual", ...) to Rust.

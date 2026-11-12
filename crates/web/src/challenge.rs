@@ -145,6 +145,8 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                         on_edit=Callback::new(move |_| check())
                         vim=settings.vim()
                         mode=vim_mode
+                        relative=settings.relative_numbers()
+                        on_relative=Callback::new(move |on| settings.update(|s| s.relative_numbers = on))
                     />
                     <div class="statusline">
                         <span class="mode" data-mode=move || vim_mode.get()>
@@ -165,6 +167,19 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                             />
                             "vim"
                         </label>
+                        <Show when=move || settings.vim().get()>
+                            <label class="vim-toggle" title="Relative line numbers (or :set rnu)">
+                                <input
+                                    type="checkbox"
+                                    prop:checked=move || settings.relative_numbers().get()
+                                    on:change=move |ev| {
+                                        let on = event_target_checked(&ev);
+                                        settings.update(|s| s.relative_numbers = on);
+                                    }
+                                />
+                                "rnu"
+                            </label>
+                        </Show>
                         <button class="link" on:click=move |_| start()>"↻ restart"</button>
                     </div>
                 }.into_any(),
