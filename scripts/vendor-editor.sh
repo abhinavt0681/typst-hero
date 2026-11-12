@@ -21,6 +21,7 @@ cp "$repo/crates/web/js/editor-src.js" .
 ./node_modules/.bin/esbuild editor-src.js \
   --bundle --minify --format=esm --target=es2020 \
   --legal-comments=eof \
+  --banner:js="/*! typst-hero editor bundle (AGPL-3.0-or-later). Includes CodeMirror 6 and @replit/codemirror-vim, MIT License, Copyright (C) 2016-2024 Marijn Haverbeke and others. Full notices: THIRD_PARTY_NOTICES.md */" \
   --outfile="$repo/crates/web/js/editor.js"
 
 echo "Wrote crates/web/js/editor.js"

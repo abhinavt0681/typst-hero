@@ -166,7 +166,10 @@ typst-hero/
 - **Packages/templates**: fetch from the Typst package registry into the
   virtual file system. If browser (CORS) access isn't allowed, ship a curated
   bundled set instead.
-- **Licensing**: Typst is Apache-2.0; typst-hero will be MIT OR Apache-2.0.
+- **Licensing**: typst-hero is AGPL-3.0-or-later (copyleft, also covers people
+  hosting modified versions). Typst is Apache-2.0, which is compatible with
+  (A)GPLv3 but not GPLv2. Third-party notices in `THIRD_PARTY_NOTICES.md`.
+  Backlog: generate full Rust dependency notices with `cargo about`.
 
 ### Why WebAssembly (and the alternatives)
 

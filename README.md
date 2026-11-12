@@ -47,4 +47,10 @@ browser (compiled to WebAssembly) to compile your code on every keystroke.
 
 ## License
 
-MIT OR Apache-2.0
+typst-hero is free software under the **GNU Affero General Public License
+v3.0 or later** (see [LICENSE](LICENSE)). You may use, study, change and share
+it. If you distribute it, or run a modified version as a public website, you
+must share your source code under the same license.
+
+Bundled third-party components keep their own licenses; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
