@@ -213,7 +213,7 @@ later without rewriting anything.
    (download 14 MB → ~7 MB). ⬜ lesson prose in `content/` files.
 3. ✅ **M3a — Engine**: skill registry, lesson prose in `content/*.toml`, per-skill
    XP and levels, Stats page (heatmap, streak, levels by group).
-   **M3b — Practice + Writing**: Practice page (categories; goals/time/endless;
+   ✅ **M3b — Practice + Writing**: Practice page (categories; goals/time/endless;
    review inefficient goals), remaining Track 1 lessons.
    **M3c — Polish**: keep last good render on error; optional Vim keystroke XP.
 4. **M4 — Stats & accounts**: per-feature levels, heatmap, streak; review-inefficient-goals

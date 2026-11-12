@@ -36,7 +36,9 @@ cargo test -p typst-hero-core  # core tests
 | `crates/web/src/main.rs` | The Axum server (server-side rendering) |
 | `crates/web/src/app.rs` | Page shell, routes, header, sidebar, home page |
 | `crates/web/src/lesson.rs` | Lesson page: intro, syntax chips with examples, pager |
-| `crates/web/src/challenge.rs` | The live challenge: editor, target vs output, summary |
+| `crates/web/src/drill.rs` | The goal loop shared by challenges and practice: compile, judge, XP, results |
+| `crates/web/src/challenge.rs` | A lesson's challenge (fixed goal count) and its time-history stats |
+| `crates/web/src/practice.rs` | Practice page: pick lessons; goals, time or endless mode |
 | `crates/web/src/stats.rs` | Stats page: activity heatmap, streak, skill levels |
 | `crates/web/src/progress.rs` | Progress, XP and activity, saved in the browser |
 | `crates/web/src/editor.rs` | The code editor component (CodeMirror + Vim), driven from Rust |

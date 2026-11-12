@@ -1,20 +1,15 @@
-//! The interactive challenge: reproduce the target, goal after goal.
+//! A lesson's challenge: a fixed number of goals from the lesson's generator.
 //!
 //! Every keystroke recompiles the learner's code with the real Typst compiler
 //! (running in the browser as WebAssembly) and compares it with the target.
 
-use std::collections::BTreeMap;
-
 use leptos::prelude::*;
 use leptos_router::components::A;
-use typst_hero_core::rng::Rng;
-use typst_hero_core::{Diagnostic, Goal, Lesson, Rendered, Verdict, compile_str, judge};
+use typst_hero_core::Lesson;
 
-use crate::editor::CodeEditor;
+use crate::drill::{Drill, DrillWorkspace, Pane, Results};
 use crate::fonts::use_fonts_ready;
 use crate::progress::{Run, use_progress};
-use crate::settings::use_settings;
-use crate::stats::SkillRow;
 use crate::time::now_ms;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -30,89 +25,33 @@ enum Phase {
     Done,
 }
 
-/// A solved goal, kept for the summary screen.
-#[derive(Clone)]
-struct Solved {
-    goal: Goal,
-    code: String,
-    efficient: bool,
-}
-
 #[component]
 pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> impl IntoView {
-    // Seed 1 on first render so the server and browser show the same preview.
-    // Starting the challenge re-seeds from the clock.
-    let rng = StoredValue::new(Rng::new(1));
-    let draw = move |prev: Option<&Goal>| loop {
-        let goal = rng.try_update_value(|r| (lesson.generate)(r)).expect("rng alive");
-        if prev != Some(&goal) {
-            break goal;
-        }
-    };
-
-    let goal = RwSignal::new(draw(None));
-    let code = RwSignal::new(String::new());
+    let drill = Drill::new(vec![lesson.generate]);
     let phase = RwSignal::new(Phase::Ready);
-    let solved = RwSignal::new(Vec::<Solved>::new());
-    let started_at = StoredValue::new(0.0);
-    let elapsed_ms = RwSignal::new(0.0);
-    // Bumped whenever the editor's text must be replaced (new goal, restart).
-    let reset = RwSignal::new(0u64);
-    let vim_mode = RwSignal::new(String::new());
-    let settings = use_settings();
-    let store = use_progress();
     let tab = RwSignal::new(Tab::Challenge);
-    // XP earned per skill during this run, for the summary.
-    let gained = RwSignal::new(BTreeMap::<String, u32>::new());
-
-    // Recompile when fonts arrive, too (`ready.track()`).
+    let elapsed_ms = RwSignal::new(0.0);
     let ready = use_fonts_ready();
-    let target = Memo::new(move |_| {
-        ready.track();
-        goal.with(|g| compile_str(&g.ideal).ok())
-    });
-    let output = Memo::new(move |_| {
-        ready.track();
-        code.with(|c| compile_str(c))
-    });
+    let store = use_progress();
 
     let start = move || {
-        rng.set_value(Rng::new(now_ms() as u64));
-        let g = draw(None);
-        code.set(g.start.clone());
-        goal.set(g);
-        solved.set(Vec::new());
-        gained.set(BTreeMap::new());
-        started_at.set_value(now_ms());
+        drill.start();
         phase.set(Phase::Running);
-        reset.update(|r| *r += 1);
     };
 
-    // Called after every edit: if the output matches, record it and move on.
     let check = move || {
-        let (Some(t), Ok(o)) = (target.get_untracked(), output.get_untracked()) else { return };
-        let g = goal.get_untracked();
-        let c = code.get_untracked();
-        if let Verdict::Solved { efficient } = judge(&t, &o, &c, &g.ideal) {
-            let earned = store.solve_goal(&g.features, efficient);
-            gained.update(|m| earned.into_iter().for_each(|s| *m.entry(s).or_default() += 1));
-            solved.update(|s| s.push(Solved { goal: g.clone(), code: c, efficient }));
-            if solved.with_untracked(Vec::len) >= lesson.goals {
-                let ms = now_ms() - started_at.get_value();
-                elapsed_ms.set(ms);
-                let efficient = solved.with_untracked(|s| s.iter().filter(|x| x.efficient).count());
-                store.finish_run(&lesson.slug, Run { ms, efficient, goals: lesson.goals, at: now_ms() });
-                phase.set(Phase::Done);
-            } else {
-                let next = draw(Some(&g));
-                code.set(next.start.clone());
-                goal.set(next);
-                reset.update(|r| *r += 1);
-            }
+        if drill.check() && drill.solved.with_untracked(Vec::len) >= lesson.goals {
+            let ms = drill.elapsed_ms();
+            elapsed_ms.set(ms);
+            let run = Run { ms, efficient: drill.efficient_count(), goals: lesson.goals, at: now_ms() };
+            store.finish_run(&lesson.slug, run);
+            phase.set(Phase::Done);
         }
     };
 
-    let progress = move || format!("width: {}%", 100 * solved.with(Vec::len) / lesson.goals);
+    let progress = move || format!("width: {}%", 100 * drill.solved_count() / lesson.goals);
+    let status = Signal::derive(move || format!("goal {} / {}", drill.solved_count() + 1, lesson.goals));
+    let target = drill.target;
 
     view! {
         <section class="challenge">
@@ -125,7 +64,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                 </button>
             </div>
             {move || if tab.get() == Tab::Stats {
-                return view! { <ChallengeStats slug=lesson.slug.as_str() /> }.into_any();
+                view! { <ChallengeStats slug=lesson.slug.as_str() /> }.into_any()
             } else { match phase.get() {
                 Phase::Ready => view! {
                     <div class="ready">
@@ -143,131 +82,16 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                 }.into_any(),
                 Phase::Running => view! {
                     <div class="progress"><div class="bar" style=progress></div></div>
-                    <div class="panes">
-                        <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
-                        <Pane label="Your output" rendered=output.into() />
-                    </div>
-                    <CodeEditor
-                        code
-                        reset=reset.into()
-                        on_edit=Callback::new(move |_| check())
-                        vim=settings.vim()
-                        mode=vim_mode
-                        relative=settings.relative_numbers()
-                        on_relative=Callback::new(move |on| settings.update(|s| s.relative_numbers = on))
-                    />
-                    <div class="statusline">
-                        <span class="mode" data-mode=move || vim_mode.get()>
-                            {move || match vim_mode.get().as_str() {
-                                "" => "EDIT".to_string(),
-                                m => m.to_uppercase(),
-                            }}
-                        </span>
-                        <span>"goal " {move || solved.with(Vec::len) + 1} " / " {lesson.goals}</span>
-                        <label class="vim-toggle" title="Vim keybindings">
-                            <input
-                                type="checkbox"
-                                prop:checked=move || settings.vim().get()
-                                on:change=move |ev| {
-                                    let on = event_target_checked(&ev);
-                                    settings.update(|s| s.vim = on);
-                                }
-                            />
-                            "vim"
-                        </label>
-                        <Show when=move || settings.vim().get()>
-                            <label class="vim-toggle" title="Relative line numbers (or :set rnu)">
-                                <input
-                                    type="checkbox"
-                                    prop:checked=move || settings.relative_numbers().get()
-                                    on:change=move |ev| {
-                                        let on = event_target_checked(&ev);
-                                        settings.update(|s| s.relative_numbers = on);
-                                    }
-                                />
-                                "rnu"
-                            </label>
-                        </Show>
-                        <button class="link" on:click=move |_| start()>"↻ restart"</button>
-                    </div>
+                    <DrillWorkspace drill status on_edit=Callback::new(move |_| check()) on_restart=Callback::new(move |_| start()) />
                 }.into_any(),
-                Phase::Done => view! { <Summary solved gained elapsed_ms next_slug on_again=Callback::new(move |_| start()) /> }.into_any(),
+                Phase::Done => view! {
+                    <Results drill title="Challenge complete" elapsed_ms=elapsed_ms.get_untracked()>
+                        <button class="button secondary" on:click=move |_| start()>"↻ Practice again"</button>
+                        {next_slug.map(|slug| view! { <A href=format!("/lessons/{slug}") attr:class="button">"Next lesson →"</A> })}
+                    </Results>
+                }.into_any(),
             }}}
         </section>
-    }
-}
-
-/// A labelled preview: the rendered page, or the errors.
-#[component]
-fn Pane(label: &'static str, rendered: Signal<Result<Rendered, Vec<Diagnostic>>>) -> impl IntoView {
-    view! {
-        <figure class="pane">
-            <figcaption>{label}</figcaption>
-            {move || match rendered.get() {
-                Ok(r) => view! { <div class="page" inner_html=r.pages.join("")></div> }.into_any(),
-                Err(errs) => view! {
-                    <ul class="errors">
-                        {errs.into_iter().filter(|d| d.is_error).map(|d| view! {
-                            <li>
-                                {d.position.map(|(l, c)| format!("line {l}:{c} · "))}
-                                {d.message}
-                                {d.hints.into_iter().map(|h| view! { <div class="hint">"hint: " {h}</div> }).collect_view()}
-                            </li>
-                        }).collect_view()}
-                    </ul>
-                }.into_any(),
-            }}
-        </figure>
-    }
-}
-
-#[component]
-fn Summary(
-    solved: RwSignal<Vec<Solved>>,
-    gained: RwSignal<BTreeMap<String, u32>>,
-    elapsed_ms: RwSignal<f64>,
-    next_slug: Option<&'static str>,
-    on_again: Callback<()>,
-) -> impl IntoView {
-    let all = solved.get_untracked();
-    let efficient = all.iter().filter(|s| s.efficient).count();
-    let inefficient: Vec<Solved> = all.iter().filter(|s| !s.efficient).cloned().collect();
-    let secs = elapsed_ms.get_untracked() / 1000.0;
-    let total_xp: u32 = gained.get_untracked().values().sum();
-    let store = use_progress();
-    view! {
-        <div class="summary">
-            <h3>"Challenge complete"</h3>
-            <div class="stats-row">
-                <div><small>"efficient goals"</small><strong>{efficient} <span class="muted">"/" {all.len()}</span></strong></div>
-                <div><small>"time"</small><strong>{format!("{secs:.1}s")}</strong></div>
-                <div><small>"xp"</small><strong class="xp">"+" {total_xp}</strong></div>
-            </div>
-            {(!gained.get_untracked().is_empty()).then(|| view! {
-                <div class="skill-table">
-                    {gained.get_untracked().into_iter().map(|(id, plus)| {
-                        let xp = store.with(|p| p.xp(&id));
-                        view! { <SkillRow id xp plus /> }
-                    }).collect_view()}
-                </div>
-            })}
-            {(!inefficient.is_empty()).then(|| view! {
-                <p class="muted">{inefficient.len()} " goal(s) were not efficient enough to earn XP."</p>
-            })}
-            {(!inefficient.is_empty()).then(|| view! {
-                <h4>"Review: shorter solutions exist"</h4>
-                {inefficient.into_iter().map(|s| view! {
-                    <div class="review">
-                        <div><span class="tag ideal">"ideal"</span><code>{s.goal.ideal.clone()}</code></div>
-                        <div><span class="tag yours">"yours"</span><code>{s.code}</code></div>
-                    </div>
-                }).collect_view()}
-            })}
-            <div class="actions">
-                <button class="button secondary" on:click=move |_| on_again.run(())>"↻ Practice again"</button>
-                {next_slug.map(|slug| view! { <A href=format!("/lessons/{slug}") attr:class="button">"Next lesson →"</A> })}
-            </div>
-        </div>
     }
 }
 

@@ -12,9 +12,11 @@
 
 pub mod app;
 mod challenge;
+mod drill;
 mod editor;
 pub mod fonts;
 mod lesson;
+mod practice;
 mod progress;
 mod settings;
 mod stats;

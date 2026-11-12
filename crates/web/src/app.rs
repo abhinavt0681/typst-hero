@@ -11,6 +11,7 @@ use crate::fonts::{font_url, provide_fonts};
 use crate::lesson::LessonPage;
 use crate::progress::{provide_progress, use_progress};
 use crate::settings::provide_settings;
+use crate::practice::PracticePage;
 use crate::stats::StatsPage;
 
 /// The outer HTML document, rendered on the server.
@@ -56,6 +57,7 @@ pub fn App() -> impl IntoView {
                         <Route path=StaticSegment("") view=HomePage />
                         <Route path=(StaticSegment("lessons"), ParamSegment("slug")) view=LessonPage />
                         <Route path=StaticSegment("stats") view=StatsPage />
+                        <Route path=StaticSegment("practice") view=PracticePage />
                     </Routes>
                 </main>
             </div>
@@ -73,7 +75,7 @@ fn Header() -> impl IntoView {
             </A>
             <nav>
                 <A href="/lessons/emphasis">"Lessons"</A>
-                <span class="soon" title="Coming in milestone 3">"Practice"</span>
+                <A href="/practice">"Practice"</A>
                 <A href="/stats">"Stats"</A>
             </nav>
         </header>

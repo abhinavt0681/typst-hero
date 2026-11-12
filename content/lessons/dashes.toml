@@ -1,0 +1,26 @@
+title = "Dashes"
+generator = "dashes"
+goals = 5
+
+intro = """
+Typography has three dashes. A hyphen `-` joins words. Two hyphens `--` make an en dash for ranges like 10–12. Three `---` make an em dash for asides.
+
+These shorthands save you from hunting for special characters.
+"""
+
+task = [
+  "Use `--` for ranges and `---` for asides, as in the target.",
+  "No spaces around the dashes.",
+]
+
+[[chip]]
+syntax = "--"
+meaning = "en dash (ranges)"
+example = "pages 10--12"
+skill = "shorthand"
+
+[[chip]]
+syntax = "---"
+meaning = "em dash (asides)"
+example = "It worked---mostly."
+skill = "shorthand"

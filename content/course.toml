@@ -4,4 +4,15 @@
 [[module]]
 id = "writing"
 title = "Writing"
-lessons = ["emphasis", "headings", "lists"]
+lessons = [
+  "emphasis",
+  "raw",
+  "escapes",
+  "comments",
+  "headings",
+  "lists",
+  "terms",
+  "linebreaks",
+  "dashes",
+  "writing-review",
+]

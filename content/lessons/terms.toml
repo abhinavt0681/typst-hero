@@ -1,0 +1,20 @@
+title = "Term Lists"
+generator = "terms"
+goals = 5
+
+intro = """
+A term list pairs a term with its description, like a glossary.
+
+Start a line with `/`, then the term, a colon, and the description.
+"""
+
+task = [
+  "Turn each line into a term list item.",
+  "Keep the term before the colon.",
+]
+
+[[chip]]
+syntax = "/ Term: description"
+meaning = "term list item"
+example = "/ Typst: a typesetting system\n/ PDF: a document format"
+skill = "terms"

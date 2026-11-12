@@ -41,6 +41,21 @@ pub struct Goal {
     pub ideal: String,
     /// Features the ideal solution uses; they earn XP when solved efficiently.
     pub features: Vec<&'static str>,
+    /// Text that must still appear in the learner's code. Used where the
+    /// output alone can't tell the right technique from a shortcut, e.g. a
+    /// commented-out line (vs. deleting it) or `--` (vs. pasting "–").
+    pub require: Vec<String>,
+}
+
+impl Goal {
+    pub fn new(start: impl Into<String>, ideal: impl Into<String>, features: Vec<&'static str>) -> Self {
+        Self { start: start.into(), ideal: ideal.into(), features, require: Vec::new() }
+    }
+
+    pub fn requiring(mut self, require: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.require = require.into_iter().map(Into::into).collect();
+        self
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -71,9 +86,9 @@ pub fn effective_len(code: &str) -> usize {
     len
 }
 
-pub fn judge(target: &Rendered, attempt: &Rendered, attempt_code: &str, ideal_code: &str) -> Verdict {
-    if !attempt.looks_like(target) {
+pub fn judge(goal: &Goal, target: &Rendered, attempt: &Rendered, attempt_code: &str) -> Verdict {
+    if !attempt.looks_like(target) || !goal.require.iter().all(|r| attempt_code.contains(r.as_str())) {
         return Verdict::NotYet;
     }
-    Verdict::Solved { efficient: effective_len(attempt_code) <= effective_len(ideal_code) }
+    Verdict::Solved { efficient: effective_len(attempt_code) <= effective_len(&goal.ideal) }
 }

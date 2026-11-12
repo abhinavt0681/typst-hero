@@ -1,0 +1,26 @@
+title = "Line Breaks"
+generator = "linebreaks"
+goals = 5
+
+intro = """
+A single newline in your source is just a space. To start a new line, end the line with a backslash `\\`.
+
+A blank line starts a new paragraph instead, with more space in between. Addresses and signatures want line breaks, not paragraphs.
+"""
+
+task = [
+  "Break the lines exactly where the target does.",
+  "Use a blank line only where the target has a gap.",
+]
+
+[[chip]]
+syntax = "\\"
+meaning = "line break"
+example = "Jane Doe \\\n12 Garden Lane"
+skill = "linebreak"
+
+[[chip]]
+syntax = "blank line"
+meaning = "paragraph break"
+example = "First paragraph.\n\nSecond paragraph."
+skill = "parbreak"

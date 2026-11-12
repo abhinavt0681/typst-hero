@@ -1,0 +1,12 @@
+title = "Writing Review"
+generator = "writing-review"
+goals = 10
+
+intro = """
+Everything from this module, mixed together. Each goal could need any of it: emphasis, code, escapes, comments, headings, lists, term lists, line breaks or dashes.
+"""
+
+task = [
+  "Look at the target first and work out what it needs.",
+  "Aim for the shortest solution: that's what earns XP.",
+]

@@ -48,13 +48,25 @@ mod tests {
 
     #[test]
     fn judge_rewards_concise_solutions() {
-        let target = compile_str("a *b* c").unwrap();
+        let goal = Goal::new("a b c", "a *b* c", vec!["strong"]);
+        let target = compile_str(&goal.ideal).unwrap();
         let sugar = compile_str("a *b* c").unwrap();
         let call = compile_str("a #strong[b] c").unwrap();
-        assert_eq!(judge(&target, &sugar, "a *b* c", "a *b* c"), Verdict::Solved { efficient: true });
-        assert_eq!(judge(&target, &call, "a #strong[b] c", "a *b* c"), Verdict::Solved { efficient: false });
+        assert_eq!(judge(&goal, &target, &sugar, "a *b* c"), Verdict::Solved { efficient: true });
+        assert_eq!(judge(&goal, &target, &call, "a #strong[b] c"), Verdict::Solved { efficient: false });
         let plain = compile_str("a b c").unwrap();
-        assert_eq!(judge(&target, &plain, "a b c", "a *b* c"), Verdict::NotYet);
+        assert_eq!(judge(&goal, &target, &plain, "a b c"), Verdict::NotYet);
+    }
+
+    #[test]
+    fn judge_enforces_required_text() {
+        // Commenting out vs deleting: same output, only one is the lesson.
+        let goal = Goal::new("keep\n\ndrop", "keep\n\n// drop", vec!["comment"]).requiring(["drop"]);
+        let target = compile_str(&goal.ideal).unwrap();
+        let deleted = compile_str("keep").unwrap();
+        assert_eq!(judge(&goal, &target, &deleted, "keep"), Verdict::NotYet);
+        let commented = compile_str("keep\n\n// drop").unwrap();
+        assert_eq!(judge(&goal, &target, &commented, "keep\n\n// drop"), Verdict::Solved { efficient: true });
     }
 
     /// Every generated goal must compile, and the start must not already
@@ -66,8 +78,12 @@ mod tests {
                 let goal = (lesson.generate)(&mut Rng::new(seed));
                 let target = compile_str(&goal.ideal)
                     .unwrap_or_else(|e| panic!("{}: ideal fails: {e:?}\n{}", lesson.slug, goal.ideal));
-                let start = compile_str(&goal.start).expect("start compiles");
-                assert!(!start.looks_like(&target), "{}: start already solved", lesson.slug);
+                let start = compile_str(&goal.start)
+                    .unwrap_or_else(|e| panic!("{}: start fails: {e:?}\n{}", lesson.slug, goal.start));
+                assert!(!start.looks_like(&target), "{}: start already solved:\n{}", lesson.slug, goal.start);
+                for r in &goal.require {
+                    assert!(goal.ideal.contains(r.as_str()), "{}: ideal lacks required `{r}`", lesson.slug);
+                }
                 assert!(!goal.features.is_empty());
             }
         }

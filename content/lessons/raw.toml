@@ -1,0 +1,20 @@
+title = "Raw Text and Code"
+generator = "raw"
+goals = 5
+
+intro = """
+Wrap text in backticks to show it as code, in a monospace font, exactly as typed.
+
+Inside backticks, markup is ignored: `*` and `_` show up as themselves.
+"""
+
+task = [
+  "Find the code in each sentence and put it in backticks.",
+  "Only the code, not the words around it.",
+]
+
+[[chip]]
+syntax = "`code`"
+meaning = "raw text (code)"
+example = "Run `typst watch main.typ` to preview."
+skill = "raw"

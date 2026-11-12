@@ -1,0 +1,26 @@
+title = "Comments"
+generator = "comments"
+goals = 5
+
+intro = """
+A comment is text in your source that never reaches the document. Use it for notes to yourself or to switch a paragraph off without losing it.
+
+`//` comments out the rest of the line. `/* ... */` can span several lines.
+"""
+
+task = [
+  "Comment out the lines that are missing from the target.",
+  "Don't delete them: you'll want them back later.",
+]
+
+[[chip]]
+syntax = "// note"
+meaning = "line comment"
+example = "Visible text.\n// A note only you can see."
+skill = "comment"
+
+[[chip]]
+syntax = "/* … */"
+meaning = "block comment"
+example = "Kept. /* Hidden,\neven across lines. */ Also kept."
+skill = "comment"

@@ -1,0 +1,26 @@
+title = "Escaping Markup"
+generator = "escapes"
+goals = 6
+
+intro = """
+Sometimes you want a `*`, `_`, `$` or backtick to appear as itself instead of being markup.
+
+Put a backslash in front of it: `\\*` prints a star. This is called escaping.
+"""
+
+task = [
+  "The target shows the symbols literally. Make yours match.",
+  "Escape each symbol that would otherwise become markup.",
+]
+
+[[chip]]
+syntax = "\\*"
+meaning = "a literal star"
+example = "The \\*asterisk\\* stays."
+skill = "escape"
+
+[[chip]]
+syntax = "\\$"
+meaning = "a literal dollar sign"
+example = "It costs \\$5."
+skill = "escape"

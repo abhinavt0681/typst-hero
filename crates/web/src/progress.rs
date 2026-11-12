@@ -77,6 +77,11 @@ impl Progress {
             .collect()
     }
 
+    /// A practice session ended (no lesson attached).
+    pub fn finish_session(&mut self, day: Day) {
+        self.days.entry(day.key()).or_default().sessions += 1;
+    }
+
     pub fn finish_run(&mut self, day: Day, slug: &str, run: Run) {
         self.days.entry(day.key()).or_default().sessions += 1;
         self.lessons.entry(slug.to_string()).or_default().runs.push(run);
@@ -135,6 +140,10 @@ impl ProgressStore {
 
     pub fn finish_run(&self, slug: &str, run: Run) {
         self.update(|p| p.finish_run(today(), slug, run));
+    }
+
+    pub fn finish_session(&self) {
+        self.update(|p| p.finish_session(today()));
     }
 }
 
