@@ -5,12 +5,13 @@ use leptos_meta::{Meta, MetaTags, Stylesheet, Title, provide_meta_context};
 use leptos_router::components::{A, Route, Router, Routes};
 use leptos_router::{ParamSegment, StaticSegment};
 use typst_hero_core::fonts::BASE_FONTS;
-use typst_hero_core::lessons::LESSONS;
+use typst_hero_core::lessons::{COURSE, LESSONS};
 
 use crate::fonts::{font_url, provide_fonts};
 use crate::lesson::LessonPage;
 use crate::progress::{provide_progress, use_progress};
 use crate::settings::provide_settings;
+use crate::stats::StatsPage;
 
 /// The outer HTML document, rendered on the server.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -54,6 +55,7 @@ pub fn App() -> impl IntoView {
                     <Routes fallback=|| view! { <p>"Page not found."</p> }>
                         <Route path=StaticSegment("") view=HomePage />
                         <Route path=(StaticSegment("lessons"), ParamSegment("slug")) view=LessonPage />
+                        <Route path=StaticSegment("stats") view=StatsPage />
                     </Routes>
                 </main>
             </div>
@@ -72,7 +74,7 @@ fn Header() -> impl IntoView {
             <nav>
                 <A href="/lessons/emphasis">"Lessons"</A>
                 <span class="soon" title="Coming in milestone 3">"Practice"</span>
-                <span class="soon" title="Coming in milestone 4">"Stats"</span>
+                <A href="/stats">"Stats"</A>
             </nav>
         </header>
     }
@@ -83,21 +85,27 @@ fn Sidebar() -> impl IntoView {
     let store = use_progress();
     view! {
         <aside class="sidebar">
-            <p class="module">"Writing"</p>
-            <ol>
-                {LESSONS
-                    .iter()
-                    .map(|l| {
-                        let href = format!("/lessons/{}", l.slug);
-                        let slug = l.slug;
-                        view! {
-                            <li class:done=move || store.with(|p| p.completed(slug))>
-                                <A href=href>{l.title}</A>
-                            </li>
-                        }
-                    })
-                    .collect_view()}
-            </ol>
+            {COURSE
+                .modules
+                .iter()
+                .map(|m| view! {
+                    <p class="module">{m.title.as_str()}</p>
+                    <ol>
+                        {m.lessons
+                            .iter()
+                            .map(|&i| {
+                                let l = &LESSONS[i];
+                                let slug = l.slug.as_str();
+                                view! {
+                                    <li class:done=move || store.with(|p| p.completed(slug))>
+                                        <A href=format!("/lessons/{slug}")>{l.title.as_str()}</A>
+                                    </li>
+                                }
+                            })
+                            .collect_view()}
+                    </ol>
+                })
+                .collect_view()}
         </aside>
     }
 }

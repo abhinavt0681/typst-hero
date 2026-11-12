@@ -6,6 +6,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+toml = "1.2.1"
 typst = "0.15.1"
 typst-assets = "0.15.1"
 typst-layout = "0.15.1"

@@ -6,7 +6,8 @@ use leptos_meta::Title;
 use leptos_router::components::A;
 use leptos_router::hooks::{use_navigate, use_params_map};
 use typst_hero_core::exercise::Chip;
-use typst_hero_core::lessons::{LESSONS, lesson};
+use typst_hero_core::lessons::{LESSONS, lesson, module_of};
+use typst_hero_core::skills;
 use typst_hero_core::{Lesson, compile_str};
 
 use crate::challenge::Challenge;
@@ -48,11 +49,11 @@ fn LessonView(index: usize, lesson: &'static Lesson) -> impl IntoView {
     let prev = index.checked_sub(1).and_then(|i| LESSONS.get(i));
     let next = LESSONS.get(index + 1);
     view! {
-        <Title text=lesson.title />
+        <Title text=lesson.title.clone() />
         <article class="lesson">
-            <p class="eyebrow">{lesson.module} " · lesson " {index + 1}</p>
-            <h1>{lesson.title}</h1>
-            {lesson.intro.iter().map(|p| view! { <p>{rich(p)}</p> }).collect_view()}
+            <p class="eyebrow">{module_of(lesson).map(|m| m.title.as_str())} " · lesson " {index + 1}</p>
+            <h1>{lesson.title.as_str()}</h1>
+            {lesson.intro.iter().map(|p| view! { <p>{rich(p.as_str())}</p> }).collect_view()}
 
             <div class="chips">
                 {lesson.chips.iter().map(|chip| view! { <ChipRow chip /> }).collect_view()}
@@ -60,22 +61,22 @@ fn LessonView(index: usize, lesson: &'static Lesson) -> impl IntoView {
 
             <h2>"Now it's your turn!"</h2>
             <ol class="task">
-                {lesson.task.iter().map(|t| view! { <li>{rich(t)}</li> }).collect_view()}
+                {lesson.task.iter().map(|t| view! { <li>{rich(t.as_str())}</li> }).collect_view()}
             </ol>
-            <Challenge lesson next_slug=next.map(|l| l.slug) />
+            <Challenge lesson next_slug=next.map(|l| l.slug.as_str()) />
 
             <nav class="pager">
                 {prev.map(|l| view! {
                     <A href=format!("/lessons/{}", l.slug) attr:class="pager-link">
                         <small>"Back " <kbd>"Ctrl+k"</kbd></small>
-                        <span>{l.title}</span>
+                        <span>{l.title.as_str()}</span>
                     </A>
                 })}
                 <span class="spacer"></span>
                 {next.map(|l| view! {
                     <A href=format!("/lessons/{}", l.slug) attr:class="pager-link right">
                         <small>"Next " <kbd>"Ctrl+j"</kbd></small>
-                        <span>{l.title}</span>
+                        <span>{l.title.as_str()}</span>
                     </A>
                 })}
             </nav>
@@ -89,14 +90,17 @@ fn ChipRow(chip: &'static Chip) -> impl IntoView {
     view! {
         <div class="chip-block" class:open=move || open.get()>
             <div class="chip-row">
-                <code class="chip">{chip.syntax}</code>
-                <span class="meaning">"– " {chip.meaning}</span>
+                <code class="chip">{chip.syntax.as_str()}</code>
+                <span class="meaning">"– " {chip.meaning.as_str()}</span>
+                {chip.skill.as_deref().and_then(skills::skill).map(|s| view! {
+                    <a class="docs-link" href=skills::docs_url(s) target="_blank" rel="noopener" title="Official Typst documentation">"docs ↗"</a>
+                })}
                 <button class="toggle" on:click=move |_| open.update(|o| *o = !*o)>
                     {move || if open.get() { "▪ hide example" } else { "▶ show example" }}
                 </button>
             </div>
             <Show when=move || open.get()>
-                <Example code=chip.example />
+                <Example code=chip.example.as_str() />
             </Show>
         </div>
     }

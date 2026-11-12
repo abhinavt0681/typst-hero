@@ -203,7 +203,8 @@ button.toggle {
 .stats-row small { display: block; color: var(--muted); }
 .stats-row strong { font-size: 36px; }
 .review { background: var(--bg-raised); border-radius: 6px; padding: 10px 12px; margin: 8px 0; display: grid; gap: 6px; }
-.review code { background: none; border: 0; white-space: pre-wrap; }
+.review > div { display: grid; grid-template-columns: 56px 1fr; align-items: start; }
+.review code { background: none; border: 0; white-space: pre-wrap; padding: 0; }
 .tag { display: inline-block; width: 52px; font-size: 12px; }
 .tag.ideal { color: var(--accent); }
 .tag.yours { color: var(--warn); }
@@ -240,3 +241,51 @@ button.toggle {
 .chart .series { fill: none; stroke: #f07178; stroke-width: 2; }
 .chart .dot { fill: #f07178; }
 .chart .label { fill: var(--muted); font: 11px var(--mono); }
+
+/* ---------- skills & stats ---------- */
+
+.docs-link { font-size: 12px; color: var(--muted); }
+.docs-link:hover { color: var(--accent); }
+.xp { color: var(--accent); }
+.small { font-size: 13px; }
+.accent { color: var(--accent); }
+
+.skill-table { display: grid; gap: 2px; margin: 8px 0 16px; }
+.skill-row {
+  display: grid; grid-template-columns: 150px 1fr minmax(80px, 30%) 44px 80px;
+  gap: 12px; align-items: center; padding: 4px 0; font-size: 14px;
+}
+.skill-row.untaught { opacity: .45; }
+.chip.small {
+  font-size: 13px; padding: 2px 8px; border-bottom-width: 2px; color: var(--text);
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; justify-self: start;
+}
+.level-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.level-bar .fill { display: block; height: 100%; background: var(--accent); }
+.lv { color: var(--muted); }
+.soon-tag { font-size: 11px; color: var(--muted); }
+
+.stats-page h1 { font-size: 34px; margin: 8px 0 20px; }
+.group-title { font-size: 16px; margin: 28px 0 4px; text-transform: lowercase; }
+.activity-line { margin: 10px 0 24px; font-size: 14px; }
+.bands { display: flex; gap: 48px; flex-wrap: wrap; margin-bottom: 8px; }
+.bands small { display: block; color: var(--muted); }
+.bands strong { font-size: 40px; line-height: 1.2; }
+
+.heatmap-scroll { overflow-x: auto; }
+.heatmap {
+  display: grid; grid-template-columns: 30px repeat(53, 12px); grid-template-rows: 16px repeat(7, 12px);
+  gap: 3px; width: max-content;
+}
+.heatmap .month, .heatmap .dow { font-size: 10px; color: var(--muted); line-height: 12px; white-space: nowrap; }
+.cell { display: inline-block; width: 12px; height: 12px; border-radius: 2px; background: var(--bg-raised); }
+.cell.l1 { background: #1f4a3d; }
+.cell.l2 { background: #2b7a5f; }
+.cell.l3 { background: #3aa883; }
+.cell.l4 { background: var(--accent); }
+.heatmap-legend { display: flex; gap: 4px; align-items: center; justify-content: flex-end; font-size: 11px; margin-top: 6px; }
+
+@media (max-width: 760px) {
+  .skill-row { grid-template-columns: 120px 1fr 40px 60px; }
+  .skill-row .level-bar { display: none; }
+}

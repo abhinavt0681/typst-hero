@@ -3798,6 +3798,8 @@ dependencies = [
 name = "typst-hero-core"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "toml 1.2.1+spec-1.1.0",
  "typst",
  "typst-assets",
  "typst-layout",

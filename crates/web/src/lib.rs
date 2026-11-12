@@ -17,6 +17,7 @@ pub mod fonts;
 mod lesson;
 mod progress;
 mod settings;
+mod stats;
 mod time;
 
 #[cfg(feature = "hydrate")]

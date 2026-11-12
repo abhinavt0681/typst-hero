@@ -1,0 +1,33 @@
+title = "Bold and Italic"
+# Rust function that builds random goals (crates/core/src/generators.rs).
+generator = "emphasis"
+goals = 6
+
+# Paragraphs are separated by blank lines. `backticks` show as code.
+intro = """
+Typst documents start out as plain text. You only add markup where you need it.
+
+Wrap a word in stars to make it strong (bold), or in underscores to emphasize it (italic).
+"""
+
+task = [
+  "Make your code render exactly like the target.",
+  "Add only the markup you need: shorter solutions earn XP.",
+]
+
+[[chip]]
+syntax = "*text*"
+meaning = "strong emphasis (bold)"
+example = "This is *important*."
+skill = "strong"
+
+[[chip]]
+syntax = "_text_"
+meaning = "emphasis (italic)"
+example = "I _really_ mean it."
+skill = "emph"
+
+[[chip]]
+syntax = "*_text_*"
+meaning = "both at once"
+example = "Read the *_entire_* manual."

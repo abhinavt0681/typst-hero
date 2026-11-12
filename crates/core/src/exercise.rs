@@ -6,22 +6,26 @@ use crate::rng::Rng;
 /// A syntax "chip" row in a lesson, like VimHero's `[d][w] - delete a word`.
 pub struct Chip {
     /// The syntax shown on the chip, e.g. `*text*`.
-    pub syntax: &'static str,
+    pub syntax: String,
     /// What it does, e.g. "strong emphasis (bold)".
-    pub meaning: &'static str,
-    /// A short Typst example, rendered next to the source.
-    pub example: &'static str,
+    pub meaning: String,
+    /// A short Typst example, typed out live next to its rendering.
+    pub example: String,
+    /// The skill this chip teaches (links to its docs page).
+    pub skill: Option<String>,
 }
 
+/// A lesson, loaded from `content/lessons/<slug>.toml`.
 pub struct Lesson {
-    pub slug: &'static str,
-    pub title: &'static str,
-    pub module: &'static str,
+    pub slug: String,
+    pub title: String,
+    /// Module id from `content/course.toml`.
+    pub module: String,
     /// Introductory paragraphs. Text between backticks is shown as code.
-    pub intro: &'static [&'static str],
-    pub chips: &'static [Chip],
+    pub intro: Vec<String>,
+    pub chips: Vec<Chip>,
     /// Instructions for the challenge ("Now it's your turn!").
-    pub task: &'static [&'static str],
+    pub task: Vec<String>,
     /// How many goals complete the challenge.
     pub goals: usize,
     /// Builds a fresh, randomized goal.

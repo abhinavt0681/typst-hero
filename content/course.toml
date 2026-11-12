@@ -1,0 +1,7 @@
+# The course outline: modules in order, each listing its lessons in order.
+# Every lesson listed here needs a file in content/lessons/<slug>.toml.
+
+[[module]]
+id = "writing"
+title = "Writing"
+lessons = ["emphasis", "headings", "lists"]

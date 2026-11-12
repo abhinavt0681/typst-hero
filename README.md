@@ -28,11 +28,17 @@ cargo test -p typst-hero-core  # core tests
 | `crates/core/src/world.rs` | The sandbox the Typst compiler runs in: in-memory files, embedded fonts |
 | `crates/core/src/render.rs` | Compile learner code → SVG pages, or errors with line numbers |
 | `crates/core/src/exercise.rs` | Lessons, goals, and judging (matches target? efficient?) |
-| `crates/core/src/lessons.rs` | Lesson content and the random goal generators |
+| `content/course.toml` | The course outline: modules and lesson order |
+| `content/lessons/*.toml` | Lesson text, syntax chips and examples (edit these to change a lesson) |
+| `crates/core/src/lessons.rs` | Loads and validates the content files |
+| `crates/core/src/generators.rs` | The random goal generators, referenced by name from lesson files |
+| `crates/core/src/skills.rs` | The skill tree (every piece of Typst syntax) and XP levels |
 | `crates/web/src/main.rs` | The Axum server (server-side rendering) |
 | `crates/web/src/app.rs` | Page shell, routes, header, sidebar, home page |
 | `crates/web/src/lesson.rs` | Lesson page: intro, syntax chips with examples, pager |
 | `crates/web/src/challenge.rs` | The live challenge: editor, target vs output, summary |
+| `crates/web/src/stats.rs` | Stats page: activity heatmap, streak, skill levels |
+| `crates/web/src/progress.rs` | Progress, XP and activity, saved in the browser |
 | `crates/web/src/editor.rs` | The code editor component (CodeMirror + Vim), driven from Rust |
 | `crates/web/js/editor-src.js` | The only hand-written JavaScript: a thin CodeMirror wrapper |
 | `crates/web/js/editor.js` | Its prebuilt bundle (committed; regenerate with `scripts/vendor-editor.sh`, which needs Node) |

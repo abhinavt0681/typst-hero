@@ -1,0 +1,32 @@
+title = "Headings"
+generator = "headings"
+goals = 5
+
+intro = """
+Start a line with `=` and a space to turn it into a heading.
+
+More equals signs make deeper levels: `==` is a subsection, `===` a sub-subsection.
+"""
+
+task = [
+  "Turn the right lines into headings of the right level.",
+  "Compare the size of each heading with the target.",
+]
+
+[[chip]]
+syntax = "= Title"
+meaning = "level 1 heading"
+example = "= Introduction\nWe begin here."
+skill = "heading"
+
+[[chip]]
+syntax = "== Title"
+meaning = "level 2 heading"
+example = "== Background\nSome context."
+skill = "heading"
+
+[[chip]]
+syntax = "=== Title"
+meaning = "level 3 heading"
+example = "=== Details\nThe fine print."
+skill = "heading"

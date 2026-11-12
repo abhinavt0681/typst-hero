@@ -3,6 +3,8 @@
 //! Every keystroke recompiles the learner's code with the real Typst compiler
 //! (running in the browser as WebAssembly) and compares it with the target.
 
+use std::collections::BTreeMap;
+
 use leptos::prelude::*;
 use leptos_router::components::A;
 use typst_hero_core::rng::Rng;
@@ -12,6 +14,7 @@ use crate::editor::CodeEditor;
 use crate::fonts::use_fonts_ready;
 use crate::progress::{Run, use_progress};
 use crate::settings::use_settings;
+use crate::stats::SkillRow;
 use crate::time::now_ms;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -59,6 +62,8 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
     let settings = use_settings();
     let store = use_progress();
     let tab = RwSignal::new(Tab::Challenge);
+    // XP earned per skill during this run, for the summary.
+    let gained = RwSignal::new(BTreeMap::<String, u32>::new());
 
     // Recompile when fonts arrive, too (`ready.track()`).
     let ready = use_fonts_ready();
@@ -77,6 +82,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
         code.set(g.start.clone());
         goal.set(g);
         solved.set(Vec::new());
+        gained.set(BTreeMap::new());
         started_at.set_value(now_ms());
         phase.set(Phase::Running);
         reset.update(|r| *r += 1);
@@ -88,12 +94,14 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
         let g = goal.get_untracked();
         let c = code.get_untracked();
         if let Verdict::Solved { efficient } = judge(&t, &o, &c, &g.ideal) {
+            let earned = store.solve_goal(&g.features, efficient);
+            gained.update(|m| earned.into_iter().for_each(|s| *m.entry(s).or_default() += 1));
             solved.update(|s| s.push(Solved { goal: g.clone(), code: c, efficient }));
             if solved.with_untracked(Vec::len) >= lesson.goals {
                 let ms = now_ms() - started_at.get_value();
                 elapsed_ms.set(ms);
                 let efficient = solved.with_untracked(|s| s.iter().filter(|x| x.efficient).count());
-                store.record(lesson.slug, Run { ms, efficient, goals: lesson.goals, at: now_ms() });
+                store.finish_run(&lesson.slug, Run { ms, efficient, goals: lesson.goals, at: now_ms() });
                 phase.set(Phase::Done);
             } else {
                 let next = draw(Some(&g));
@@ -117,7 +125,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                 </button>
             </div>
             {move || if tab.get() == Tab::Stats {
-                return view! { <ChallengeStats slug=lesson.slug /> }.into_any();
+                return view! { <ChallengeStats slug=lesson.slug.as_str() /> }.into_any();
             } else { match phase.get() {
                 Phase::Ready => view! {
                     <div class="ready">
@@ -183,7 +191,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                         <button class="link" on:click=move |_| start()>"↻ restart"</button>
                     </div>
                 }.into_any(),
-                Phase::Done => view! { <Summary solved elapsed_ms next_slug on_again=Callback::new(move |_| start()) /> }.into_any(),
+                Phase::Done => view! { <Summary solved gained elapsed_ms next_slug on_again=Callback::new(move |_| start()) /> }.into_any(),
             }}}
         </section>
     }
@@ -216,6 +224,7 @@ fn Pane(label: &'static str, rendered: Signal<Result<Rendered, Vec<Diagnostic>>>
 #[component]
 fn Summary(
     solved: RwSignal<Vec<Solved>>,
+    gained: RwSignal<BTreeMap<String, u32>>,
     elapsed_ms: RwSignal<f64>,
     next_slug: Option<&'static str>,
     on_again: Callback<()>,
@@ -224,13 +233,27 @@ fn Summary(
     let efficient = all.iter().filter(|s| s.efficient).count();
     let inefficient: Vec<Solved> = all.iter().filter(|s| !s.efficient).cloned().collect();
     let secs = elapsed_ms.get_untracked() / 1000.0;
+    let total_xp: u32 = gained.get_untracked().values().sum();
+    let store = use_progress();
     view! {
         <div class="summary">
             <h3>"Challenge complete"</h3>
             <div class="stats-row">
                 <div><small>"efficient goals"</small><strong>{efficient} <span class="muted">"/" {all.len()}</span></strong></div>
                 <div><small>"time"</small><strong>{format!("{secs:.1}s")}</strong></div>
+                <div><small>"xp"</small><strong class="xp">"+" {total_xp}</strong></div>
             </div>
+            {(!gained.get_untracked().is_empty()).then(|| view! {
+                <div class="skill-table">
+                    {gained.get_untracked().into_iter().map(|(id, plus)| {
+                        let xp = store.with(|p| p.xp(&id));
+                        view! { <SkillRow id xp plus /> }
+                    }).collect_view()}
+                </div>
+            })}
+            {(!inefficient.is_empty()).then(|| view! {
+                <p class="muted">{inefficient.len()} " goal(s) were not efficient enough to earn XP."</p>
+            })}
             {(!inefficient.is_empty()).then(|| view! {
                 <h4>"Review: shorter solutions exist"</h4>
                 {inefficient.into_iter().map(|s| view! {

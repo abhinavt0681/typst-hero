@@ -5,10 +5,12 @@
 
 pub mod exercise;
 pub mod fonts;
+pub mod generators;
 pub mod highlight;
 pub mod lessons;
 pub mod render;
 pub mod rng;
+pub mod skills;
 pub mod world;
 
 pub use exercise::{Goal, Lesson, Verdict, judge};
@@ -59,7 +61,7 @@ mod tests {
     /// look like the target (otherwise the goal is solved before you begin).
     #[test]
     fn generated_goals_are_valid() {
-        for lesson in LESSONS {
+        for lesson in LESSONS.iter() {
             for seed in 0..40 {
                 let goal = (lesson.generate)(&mut Rng::new(seed));
                 let target = compile_str(&goal.ideal)
@@ -74,13 +76,33 @@ mod tests {
     /// Goals must not repeat too often, or learners memorize answers.
     #[test]
     fn generators_have_variety() {
-        for lesson in LESSONS {
+        for lesson in LESSONS.iter() {
             let mut rng = Rng::new(7);
             let mut seen = std::collections::HashSet::new();
             for _ in 0..50 {
                 seen.insert((lesson.generate)(&mut rng).ideal);
             }
             assert!(seen.len() >= 25, "{}: only {} distinct goals in 50", lesson.slug, seen.len());
+        }
+    }
+
+    /// Loads every content file; fails with the file and problem if any
+    /// lesson, chip or skill reference is wrong.
+    #[test]
+    fn course_loads() {
+        assert!(!lessons::COURSE.modules.is_empty());
+        assert_eq!(lessons::LESSONS.len(), lessons::COURSE.modules.iter().map(|m| m.lessons.len()).sum::<usize>());
+    }
+
+    /// Generators may only award XP to skills that exist.
+    #[test]
+    fn goal_features_are_known_skills() {
+        for lesson in LESSONS.iter() {
+            for seed in 0..20 {
+                for f in (lesson.generate)(&mut Rng::new(seed)).features {
+                    assert!(skills::skill(f).is_some(), "{}: unknown skill `{f}`", lesson.slug);
+                }
+            }
         }
     }
 
@@ -93,9 +115,9 @@ mod tests {
 
     #[test]
     fn chip_examples_compile() {
-        for lesson in LESSONS {
-            for chip in lesson.chips {
-                compile_str(chip.example).unwrap_or_else(|e| panic!("{}: {e:?}", chip.syntax));
+        for lesson in LESSONS.iter() {
+            for chip in &lesson.chips {
+                compile_str(&chip.example).unwrap_or_else(|e| panic!("{}: {e:?}", chip.syntax));
             }
         }
     }

@@ -1,0 +1,26 @@
+title = "Lists"
+generator = "lists"
+goals = 5
+
+intro = """
+Start a line with `-` for a bullet list, or `+` for a numbered list.
+
+Typst numbers `+` items for you, so you never renumber by hand.
+"""
+
+task = [
+  "Turn the lines into the kind of list shown in the target.",
+  "Each item goes on its own line.",
+]
+
+[[chip]]
+syntax = "- item"
+meaning = "bullet list item"
+example = "- milk\n- eggs"
+skill = "list"
+
+[[chip]]
+syntax = "+ item"
+meaning = "numbered list item"
+example = "+ preheat\n+ bake"
+skill = "enum"

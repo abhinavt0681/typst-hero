@@ -211,7 +211,7 @@ later without rewriting anything.
    (Ctrl+j/k), challenge timer, per-challenge stats (best / average / chart),
    progress in localStorage, sidebar checkmarks, fonts loaded on demand
    (download 14 MB → ~7 MB). ⬜ lesson prose in `content/` files.
-3. **M3a — Engine**: skill registry, lesson prose in `content/*.toml`, per-skill
+3. ✅ **M3a — Engine**: skill registry, lesson prose in `content/*.toml`, per-skill
    XP and levels, Stats page (heatmap, streak, levels by group).
    **M3b — Practice + Writing**: Practice page (categories; goals/time/endless;
    review inefficient goals), remaining Track 1 lessons.
