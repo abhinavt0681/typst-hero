@@ -6,12 +6,14 @@ use leptos_router::components::{A, Route, Router, Routes};
 use leptos_router::{ParamSegment, StaticSegment};
 use typst_hero_core::fonts::BASE_FONTS;
 use typst_hero_core::lessons::{COURSE, LESSONS};
+use typst_hero_core::projects::PROJECTS;
 
 use crate::fonts::{font_url, provide_fonts};
 use crate::lesson::LessonPage;
 use crate::progress::{provide_progress, use_progress};
 use crate::settings::provide_settings;
 use crate::practice::PracticePage;
+use crate::project::ProjectPage;
 use crate::stats::StatsPage;
 
 /// The outer HTML document, rendered on the server.
@@ -58,6 +60,7 @@ pub fn App() -> impl IntoView {
                         <Route path=(StaticSegment("lessons"), ParamSegment("slug")) view=LessonPage />
                         <Route path=StaticSegment("stats") view=StatsPage />
                         <Route path=StaticSegment("practice") view=PracticePage />
+                        <Route path=(StaticSegment("projects"), ParamSegment("slug")) view=ProjectPage />
                     </Routes>
                 </main>
             </div>
@@ -108,6 +111,21 @@ fn Sidebar() -> impl IntoView {
                     </ol>
                 })
                 .collect_view()}
+            <p class="module">"Projects"</p>
+            <ul class="projects">
+                {PROJECTS
+                    .iter()
+                    .map(|p| {
+                        let slug = p.slug.as_str();
+                        let total = p.steps.len();
+                        view! {
+                            <li class:done=move || store.with(|s| s.projects.get(slug).is_some_and(|x| x.step >= total))>
+                                <A href=format!("/projects/{slug}")>{p.title.as_str()}</A>
+                            </li>
+                        }
+                    })
+                    .collect_view()}
+            </ul>
         </aside>
     }
 }

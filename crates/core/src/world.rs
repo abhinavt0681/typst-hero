@@ -53,8 +53,18 @@ pub struct SandboxWorld {
 }
 
 impl SandboxWorld {
+    /// A world for drills: small pages sized for side-by-side previews.
     pub fn new(user_code: &str) -> Self {
-        let main = format!("{PRELUDE}#include \"{}\"\n", &USER_FILE[1..]);
+        Self::with_prelude(user_code, PRELUDE)
+    }
+
+    /// A world for projects: Typst's real defaults (A4 pages, 11pt text).
+    pub fn project(user_code: &str) -> Self {
+        Self::with_prelude(user_code, "")
+    }
+
+    fn with_prelude(user_code: &str, prelude: &str) -> Self {
+        let main = format!("{prelude}#include \"{}\"\n", &USER_FILE[1..]);
         Self {
             main: Source::new(file_id(MAIN_FILE), main),
             user: Source::new(user_file_id(), user_code.to_string()),
@@ -118,7 +128,8 @@ impl World for SandboxWorld {
             return Ok(bytes.clone());
         }
         // Allow `#read("user.typ")` and friends for completeness.
-        self.source(id).map(|s| Bytes::from_string(s.text().to_string()))
+        self.source(id)
+            .map(|s| Bytes::from_string(s.text().to_string()))
     }
 
     fn font(&self, index: usize) -> Option<Font> {

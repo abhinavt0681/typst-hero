@@ -29,7 +29,11 @@ fn walk(node: &LinkedNode, utf16: &Utf16Index, out: &mut Vec<Span>) {
         let start = node.offset();
         let end = start + node.len();
         if end > start {
-            out.push(Span { from: utf16.at(start), to: utf16.at(end), class: tag.css_class() });
+            out.push(Span {
+                from: utf16.at(start),
+                to: utf16.at(end),
+                class: tag.css_class(),
+            });
         }
     }
     for child in node.children() {
@@ -66,14 +70,35 @@ mod tests {
     #[test]
     fn highlights_strong_and_headings() {
         let spans = highlight_code("= Title\nsome *bold* text");
-        assert!(spans.contains(&Span { from: 0, to: 7, class: "typ-heading" }), "{spans:?}");
-        assert!(spans.contains(&Span { from: 13, to: 19, class: "typ-strong" }), "{spans:?}");
+        assert!(
+            spans.contains(&Span {
+                from: 0,
+                to: 7,
+                class: "typ-heading"
+            }),
+            "{spans:?}"
+        );
+        assert!(
+            spans.contains(&Span {
+                from: 13,
+                to: 19,
+                class: "typ-strong"
+            }),
+            "{spans:?}"
+        );
     }
 
     #[test]
     fn offsets_are_utf16() {
         // "é" is 2 bytes in UTF-8 but 1 unit in UTF-16; "😀" is 4 and 2.
         let spans = highlight_code("é😀 *x*");
-        assert!(spans.contains(&Span { from: 4, to: 7, class: "typ-strong" }), "{spans:?}");
+        assert!(
+            spans.contains(&Span {
+                from: 4,
+                to: 7,
+                class: "typ-strong"
+            }),
+            "{spans:?}"
+        );
     }
 }

@@ -47,7 +47,6 @@ pub fn by_name(name: &str) -> Option<fn(&mut Rng) -> Goal> {
     })
 }
 
-
 const SENTENCES: &[&str] = &[
     "the quick brown fox jumps over the lazy dog",
     "always back up your thesis before the deadline",
@@ -126,21 +125,53 @@ pub fn headings(rng: &mut Rng) -> Goal {
 }
 
 const LIST_POOLS: &[&[&str]] = &[
-    &["milk", "eggs", "bread", "coffee", "butter", "apples", "rice", "cheese"],
-    &["clone the repo", "install typst", "write the report", "export the pdf", "send it for review"],
-    &["preheat the oven", "mix the batter", "pour into the tin", "bake for twenty minutes", "let it cool"],
+    &[
+        "milk", "eggs", "bread", "coffee", "butter", "apples", "rice", "cheese",
+    ],
+    &[
+        "clone the repo",
+        "install typst",
+        "write the report",
+        "export the pdf",
+        "send it for review",
+    ],
+    &[
+        "preheat the oven",
+        "mix the batter",
+        "pour into the tin",
+        "bake for twenty minutes",
+        "let it cool",
+    ],
     &["Rust", "Typst", "Postgres", "Neovim", "Linux", "Git"],
-    &["read the brief", "sketch ideas", "draft the layout", "collect feedback", "polish"],
+    &[
+        "read the brief",
+        "sketch ideas",
+        "draft the layout",
+        "collect feedback",
+        "polish",
+    ],
 ];
 
 pub fn lists(rng: &mut Rng) -> Goal {
     let pool = rng.pick(LIST_POOLS);
     let count = 3 + rng.below(2);
     // Random items, kept in their natural order (recipes stay sensible).
-    let items: Vec<&str> = rng.distinct(pool.len(), count).into_iter().map(|i| pool[i]).collect();
-    let (marker, feature) = if rng.below(2) == 0 { ("-", "list") } else { ("+", "enum") };
+    let items: Vec<&str> = rng
+        .distinct(pool.len(), count)
+        .into_iter()
+        .map(|i| pool[i])
+        .collect();
+    let (marker, feature) = if rng.below(2) == 0 {
+        ("-", "list")
+    } else {
+        ("+", "enum")
+    };
     let start = items.join("\n\n");
-    let ideal = items.iter().map(|i| format!("{marker} {i}")).collect::<Vec<_>>().join("\n");
+    let ideal = items
+        .iter()
+        .map(|i| format!("{marker} {i}"))
+        .collect::<Vec<_>>()
+        .join("\n");
     Goal::new(start, ideal, vec![feature])
 }
 
@@ -170,21 +201,42 @@ pub fn raw(rng: &mut Rng) -> Goal {
 
 // ------------------------------------------------------------------- escapes
 
-const LEADS: &[&str] = &["note:", "remember,", "in the report", "as agreed", "today", "honestly"];
-const WORDS: &[&str] = &["draft", "final", "pending", "urgent", "optional", "secret", "beta"];
+const LEADS: &[&str] = &[
+    "note:",
+    "remember,",
+    "in the report",
+    "as agreed",
+    "today",
+    "honestly",
+];
+const WORDS: &[&str] = &[
+    "draft", "final", "pending", "urgent", "optional", "secret", "beta",
+];
 
 /// Text that *looks* like markup but should appear literally.
 pub fn escapes(rng: &mut Rng) -> Goal {
     let lead = rng.pick(LEADS);
     let word = rng.pick(WORDS);
     let (start, ideal) = match rng.below(4) {
-        0 => (format!("{lead} the *{word}* label stays"), format!("{lead} the \\*{word}\\* label stays")),
-        1 => (format!("{lead} the file is _{word}_ now"), format!("{lead} the file is \\_{word}\\_ now")),
+        0 => (
+            format!("{lead} the *{word}* label stays"),
+            format!("{lead} the \\*{word}\\* label stays"),
+        ),
+        1 => (
+            format!("{lead} the file is _{word}_ now"),
+            format!("{lead} the file is \\_{word}\\_ now"),
+        ),
         2 => {
             let (a, b) = (1 + rng.below(9), 10 + rng.below(90));
-            (format!("{lead} it costs ${a} or ${b}"), format!("{lead} it costs \\${a} or \\${b}"))
+            (
+                format!("{lead} it costs ${a} or ${b}"),
+                format!("{lead} it costs \\${a} or \\${b}"),
+            )
         }
-        _ => (format!("{lead} wrap it in `{word}` ticks"), format!("{lead} wrap it in \\`{word}\\` ticks")),
+        _ => (
+            format!("{lead} wrap it in `{word}` ticks"),
+            format!("{lead} wrap it in \\`{word}\\` ticks"),
+        ),
     };
     Goal::new(start, ideal, vec!["escape"])
 }
@@ -204,13 +256,23 @@ const NOTES: &[&str] = &[
 
 /// Hide lines from the output without deleting them.
 pub fn comments(rng: &mut Rng) -> Goal {
-    let lines: Vec<&str> = rng.distinct(NOTES.len(), 4).into_iter().map(|i| NOTES[i]).collect();
+    let lines: Vec<&str> = rng
+        .distinct(NOTES.len(), 4)
+        .into_iter()
+        .map(|i| NOTES[i])
+        .collect();
     let count = 1 + rng.below(2);
     let hidden = rng.distinct(lines.len(), count);
     let ideal: Vec<String> = lines
         .iter()
         .enumerate()
-        .map(|(i, l)| if hidden.contains(&i) { format!("// {l}") } else { l.to_string() })
+        .map(|(i, l)| {
+            if hidden.contains(&i) {
+                format!("// {l}")
+            } else {
+                l.to_string()
+            }
+        })
         .collect();
     let required: Vec<&str> = hidden.iter().map(|&i| lines[i]).collect();
     Goal::new(lines.join("\n\n"), ideal.join("\n\n"), vec!["comment"]).requiring(required)
@@ -254,9 +316,21 @@ const GLOSSARIES: &[&[(&str, &str)]] = &[
 pub fn terms(rng: &mut Rng) -> Goal {
     let glossary = rng.pick(GLOSSARIES);
     let count = 2 + rng.below(2);
-    let picked: Vec<_> = rng.distinct(glossary.len(), count).into_iter().map(|i| glossary[i]).collect();
-    let start = picked.iter().map(|(t, d)| format!("{t}: {d}")).collect::<Vec<_>>().join("\n\n");
-    let ideal = picked.iter().map(|(t, d)| format!("/ {t}: {d}")).collect::<Vec<_>>().join("\n");
+    let picked: Vec<_> = rng
+        .distinct(glossary.len(), count)
+        .into_iter()
+        .map(|i| glossary[i])
+        .collect();
+    let start = picked
+        .iter()
+        .map(|(t, d)| format!("{t}: {d}"))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    let ideal = picked
+        .iter()
+        .map(|(t, d)| format!("/ {t}: {d}"))
+        .collect::<Vec<_>>()
+        .join("\n");
     Goal::new(start, ideal, vec!["terms"])
 }
 
@@ -297,16 +371,37 @@ pub fn linebreaks(rng: &mut Rng) -> Goal {
 
 // -------------------------------------------------------------------- dashes
 
-const SUBJECTS: &[&str] = &["the plan", "the draft", "our budget", "the survey", "this method"];
-const ASIDES: &[&str] = &["surprisingly", "for now", "in theory", "mostly", "as expected"];
+const SUBJECTS: &[&str] = &[
+    "the plan",
+    "the draft",
+    "our budget",
+    "the survey",
+    "this method",
+];
+const ASIDES: &[&str] = &[
+    "surprisingly",
+    "for now",
+    "in theory",
+    "mostly",
+    "as expected",
+];
 
 /// `--` is an en dash (ranges), `---` an em dash (asides).
 pub fn dashes(rng: &mut Rng) -> Goal {
     if rng.below(2) == 0 {
         let what = rng.pick(&["read pages", "see chapters", "the years", "open from"]);
-        let (a, len) = if *what == "the years" { (1990 + rng.below(30), 1 + rng.below(9)) } else { (1 + rng.below(40), 2 + rng.below(20)) };
+        let (a, len) = if *what == "the years" {
+            (1990 + rng.below(30), 1 + rng.below(9))
+        } else {
+            (1 + rng.below(40), 2 + rng.below(20))
+        };
         let b = a + len;
-        Goal::new(format!("{what} {a} - {b}"), format!("{what} {a}--{b}"), vec!["shorthand"]).requiring(["--"])
+        Goal::new(
+            format!("{what} {a} - {b}"),
+            format!("{what} {a}--{b}"),
+            vec!["shorthand"],
+        )
+        .requiring(["--"])
     } else {
         let (topic, aside) = (rng.pick(SUBJECTS), rng.pick(ASIDES));
         let start = format!("{topic} - {aside} - worked");
@@ -319,6 +414,8 @@ pub fn dashes(rng: &mut Rng) -> Goal {
 
 /// A mix of everything in the Writing module.
 pub fn writing_review(rng: &mut Rng) -> Goal {
-    const ALL: &[fn(&mut Rng) -> Goal] = &[emphasis, raw, escapes, comments, headings, lists, terms, linebreaks, dashes];
+    const ALL: &[fn(&mut Rng) -> Goal] = &[
+        emphasis, raw, escapes, comments, headings, lists, terms, linebreaks, dashes,
+    ];
     (rng.pick(ALL))(rng)
 }

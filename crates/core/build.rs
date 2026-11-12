@@ -7,7 +7,10 @@ use std::{env, fs};
 
 fn main() {
     let manifest = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let content = Path::new(&manifest).join("../../content").canonicalize().expect("content/ exists");
+    let content = Path::new(&manifest)
+        .join("../../content")
+        .canonicalize()
+        .expect("content/ exists");
     println!("cargo:rerun-if-changed={}", content.display());
 
     let mut lessons: Vec<_> = fs::read_dir(content.join("lessons"))
@@ -18,9 +21,25 @@ fn main() {
     lessons.sort();
 
     let mut out = String::new();
-    out += &format!("pub const COURSE: &str = include_str!({:?});\n", content.join("course.toml"));
+    out += &format!(
+        "pub const COURSE: &str = include_str!({:?});\n",
+        content.join("course.toml")
+    );
     out += "pub const LESSON_FILES: &[(&str, &str)] = &[\n";
     for path in &lessons {
+        let slug = path.file_stem().unwrap().to_str().unwrap();
+        out += &format!("    ({slug:?}, include_str!({path:?})),\n");
+    }
+    out += "];\n";
+
+    let mut projects: Vec<_> = fs::read_dir(content.join("projects"))
+        .expect("content/projects exists")
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|e| e == "toml"))
+        .collect();
+    projects.sort();
+    out += "pub const PROJECT_FILES: &[(&str, &str)] = &[\n";
+    for path in &projects {
         let slug = path.file_stem().unwrap().to_str().unwrap();
         out += &format!("    ({slug:?}, include_str!({path:?})),\n");
     }
@@ -40,5 +59,9 @@ fn main() {
     }
     out += "];\n";
 
-    fs::write(Path::new(&env::var("OUT_DIR").unwrap()).join("content.rs"), out).unwrap();
+    fs::write(
+        Path::new(&env::var("OUT_DIR").unwrap()).join("content.rs"),
+        out,
+    )
+    .unwrap();
 }

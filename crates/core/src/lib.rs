@@ -8,13 +8,14 @@ pub mod fonts;
 pub mod generators;
 pub mod highlight;
 pub mod lessons;
+pub mod projects;
 pub mod render;
 pub mod rng;
 pub mod skills;
 pub mod world;
 
 pub use exercise::{Goal, Lesson, Verdict, judge};
-pub use render::{Diagnostic, Rendered, compile, compile_str};
+pub use render::{Diagnostic, Rendered, compile, compile_project, compile_str};
 pub use world::SandboxWorld;
 
 #[cfg(test)]
@@ -52,8 +53,14 @@ mod tests {
         let target = compile_str(&goal.ideal).unwrap();
         let sugar = compile_str("a *b* c").unwrap();
         let call = compile_str("a #strong[b] c").unwrap();
-        assert_eq!(judge(&goal, &target, &sugar, "a *b* c"), Verdict::Solved { efficient: true });
-        assert_eq!(judge(&goal, &target, &call, "a #strong[b] c"), Verdict::Solved { efficient: false });
+        assert_eq!(
+            judge(&goal, &target, &sugar, "a *b* c"),
+            Verdict::Solved { efficient: true }
+        );
+        assert_eq!(
+            judge(&goal, &target, &call, "a #strong[b] c"),
+            Verdict::Solved { efficient: false }
+        );
         let plain = compile_str("a b c").unwrap();
         assert_eq!(judge(&goal, &target, &plain, "a b c"), Verdict::NotYet);
     }
@@ -61,12 +68,16 @@ mod tests {
     #[test]
     fn judge_enforces_required_text() {
         // Commenting out vs deleting: same output, only one is the lesson.
-        let goal = Goal::new("keep\n\ndrop", "keep\n\n// drop", vec!["comment"]).requiring(["drop"]);
+        let goal =
+            Goal::new("keep\n\ndrop", "keep\n\n// drop", vec!["comment"]).requiring(["drop"]);
         let target = compile_str(&goal.ideal).unwrap();
         let deleted = compile_str("keep").unwrap();
         assert_eq!(judge(&goal, &target, &deleted, "keep"), Verdict::NotYet);
         let commented = compile_str("keep\n\n// drop").unwrap();
-        assert_eq!(judge(&goal, &target, &commented, "keep\n\n// drop"), Verdict::Solved { efficient: true });
+        assert_eq!(
+            judge(&goal, &target, &commented, "keep\n\n// drop"),
+            Verdict::Solved { efficient: true }
+        );
     }
 
     /// Every generated goal must compile, and the start must not already
@@ -76,13 +87,24 @@ mod tests {
         for lesson in LESSONS.iter() {
             for seed in 0..40 {
                 let goal = (lesson.generate)(&mut Rng::new(seed));
-                let target = compile_str(&goal.ideal)
-                    .unwrap_or_else(|e| panic!("{}: ideal fails: {e:?}\n{}", lesson.slug, goal.ideal));
-                let start = compile_str(&goal.start)
-                    .unwrap_or_else(|e| panic!("{}: start fails: {e:?}\n{}", lesson.slug, goal.start));
-                assert!(!start.looks_like(&target), "{}: start already solved:\n{}", lesson.slug, goal.start);
+                let target = compile_str(&goal.ideal).unwrap_or_else(|e| {
+                    panic!("{}: ideal fails: {e:?}\n{}", lesson.slug, goal.ideal)
+                });
+                let start = compile_str(&goal.start).unwrap_or_else(|e| {
+                    panic!("{}: start fails: {e:?}\n{}", lesson.slug, goal.start)
+                });
+                assert!(
+                    !start.looks_like(&target),
+                    "{}: start already solved:\n{}",
+                    lesson.slug,
+                    goal.start
+                );
                 for r in &goal.require {
-                    assert!(goal.ideal.contains(r.as_str()), "{}: ideal lacks required `{r}`", lesson.slug);
+                    assert!(
+                        goal.ideal.contains(r.as_str()),
+                        "{}: ideal lacks required `{r}`",
+                        lesson.slug
+                    );
                 }
                 assert!(!goal.features.is_empty());
             }
@@ -98,7 +120,12 @@ mod tests {
             for _ in 0..50 {
                 seen.insert((lesson.generate)(&mut rng).ideal);
             }
-            assert!(seen.len() >= 25, "{}: only {} distinct goals in 50", lesson.slug, seen.len());
+            assert!(
+                seen.len() >= 25,
+                "{}: only {} distinct goals in 50",
+                lesson.slug,
+                seen.len()
+            );
         }
     }
 
@@ -107,7 +134,14 @@ mod tests {
     #[test]
     fn course_loads() {
         assert!(!lessons::COURSE.modules.is_empty());
-        assert_eq!(lessons::LESSONS.len(), lessons::COURSE.modules.iter().map(|m| m.lessons.len()).sum::<usize>());
+        assert_eq!(
+            lessons::LESSONS.len(),
+            lessons::COURSE
+                .modules
+                .iter()
+                .map(|m| m.lessons.len())
+                .sum::<usize>()
+        );
     }
 
     /// Generators may only award XP to skills that exist.
@@ -116,7 +150,11 @@ mod tests {
         for lesson in LESSONS.iter() {
             for seed in 0..20 {
                 for f in (lesson.generate)(&mut Rng::new(seed)).features {
-                    assert!(skills::skill(f).is_some(), "{}: unknown skill `{f}`", lesson.slug);
+                    assert!(
+                        skills::skill(f).is_some(),
+                        "{}: unknown skill `{f}`",
+                        lesson.slug
+                    );
                 }
             }
         }
@@ -125,7 +163,10 @@ mod tests {
     #[test]
     fn base_fonts_exist_on_the_server() {
         for name in fonts::BASE_FONTS.iter().chain(fonts::MATH_FONTS) {
-            assert!(fonts::embedded_font_file(name).is_some(), "missing font {name}");
+            assert!(
+                fonts::embedded_font_file(name).is_some(),
+                "missing font {name}"
+            );
         }
     }
 

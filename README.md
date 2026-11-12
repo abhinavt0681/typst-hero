@@ -30,6 +30,7 @@ cargo test -p typst-hero-core  # core tests
 | `crates/core/src/exercise.rs` | Lessons, goals, and judging (matches target? efficient?) |
 | `content/course.toml` | The course outline: modules and lesson order |
 | `content/lessons/*.toml` | Lesson text, syntax chips and examples (edit these to change a lesson) |
+| `content/projects/*.toml` | Projects: guided multi-step documents (e.g. the resume) |
 | `content/assets/` | Sample images every exercise can use, e.g. `image("mountain.svg")` |
 | `crates/core/src/lessons.rs` | Loads and validates the content files |
 | `crates/core/src/generators.rs` (+ `generators/`) | The random goal generators, referenced by name from lesson files |
@@ -39,6 +40,8 @@ cargo test -p typst-hero-core  # core tests
 | `crates/web/src/lesson.rs` | Lesson page: intro, syntax chips with examples, pager |
 | `crates/web/src/drill.rs` | The goal loop shared by challenges and practice: compile, judge, XP, results |
 | `crates/web/src/challenge.rs` | A lesson's challenge (fixed goal count) and its time-history stats |
+| `crates/web/src/project.rs` | Project page: guided steps, A4 preview, "make it yours", PDF download |
+| `crates/core/src/projects.rs` | Loads and validates projects |
 | `crates/web/src/practice.rs` | Practice page: pick lessons; goals, time or endless mode |
 | `crates/web/src/stats.rs` | Stats page: activity heatmap, streak, skill levels |
 | `crates/web/src/progress.rs` | Progress, XP and activity, saved in the browser |

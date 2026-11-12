@@ -11,10 +11,13 @@ toml = "1.2.1"
 typst = "0.15.1"
 typst-assets = "0.15.1"
 typst-layout = "0.15.1"
+typst-pdf = { version = "0.15.1", optional = true }
 typst-svg = "0.15.1"
 
 [features]
-default = ["embedded-fonts"]
+default = ["embedded-fonts", "pdf"]
 # Bundle Typst's fonts into the binary (server, tests). The browser build
 # turns this off and downloads fonts separately.
 embedded-fonts = ["typst-assets/fonts"]
+# PDF export (for downloading finished projects).
+pdf = ["dep:typst-pdf"]

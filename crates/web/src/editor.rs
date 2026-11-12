@@ -66,7 +66,7 @@ mod browser {
         fn set_relative(this: &Editor, relative: bool);
 
         #[wasm_bindgen(method, js_name = setHighlights)]
-        fn set_highlights(this: &Editor, ranges: Vec<u32>, classes: Vec<String>);
+        fn set_highlights(this: &Editor, ranges: Vec<u32>, classes: Vec<String>, doc_length: u32);
 
         #[wasm_bindgen(method)]
         fn focus(this: &Editor);
@@ -105,7 +105,8 @@ mod browser {
             });
             ranges.extend([span.from, span.to, idx as u32]);
         }
-        editor.set_highlights(ranges, classes);
+        // Length in UTF-16 units, as JavaScript counts it.
+        editor.set_highlights(ranges, classes, code.encode_utf16().count() as u32);
     }
 
     pub fn attach(props: Props) {

@@ -1,5 +1,9 @@
 //! The server binary: an Axum web server that renders Leptos pages to HTML.
 
+// Leptos encodes the whole view tree in types; release builds of nested
+// pages need a deeper limit than the default 128.
+#![recursion_limit = "256"]
+
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {

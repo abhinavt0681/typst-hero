@@ -9,7 +9,7 @@ repository.workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-typst-hero-core = { path = "../core", default-features = false }
+typst-hero-core = { path = "../core", default-features = false, features = ["pdf"] }
 leptos = "0.8"
 leptos_router = "0.8"
 leptos_meta = "0.8"
@@ -27,7 +27,7 @@ console_error_panic_hook = { version = "0.1", optional = true }
 wasm-bindgen = { version = "0.2", optional = true }
 js-sys = { version = "0.3", optional = true }
 wasm-bindgen-futures = { version = "0.4", optional = true }
-web-sys = { version = "0.3", features = ["Window", "Response", "Storage", "HtmlElement"], optional = true }
+web-sys = { version = "0.3", features = ["Window", "Response", "Storage", "HtmlElement", "HtmlAnchorElement", "Document", "Element", "Blob", "BlobPropertyBag", "Url"], optional = true }
 
 [features]
 hydrate = [

@@ -31,7 +31,8 @@ pub struct Course {
 
 /// The whole course. Panics with a clear message if a content file is
 /// invalid; the `course_loads` test catches that before anything ships.
-pub static COURSE: LazyLock<Course> = LazyLock::new(|| load().unwrap_or_else(|e| panic!("invalid course content: {e}")));
+pub static COURSE: LazyLock<Course> =
+    LazyLock::new(|| load().unwrap_or_else(|e| panic!("invalid course content: {e}")));
 
 /// All lessons in course order.
 pub static LESSONS: LazyLock<&'static [Lesson]> = LazyLock::new(|| &COURSE.lessons);
@@ -98,7 +99,8 @@ struct ChipFile {
 }
 
 fn load() -> Result<Course, String> {
-    let course: CourseFile = toml::from_str(embedded::COURSE).map_err(|e| format!("course.toml: {e}"))?;
+    let course: CourseFile =
+        toml::from_str(embedded::COURSE).map_err(|e| format!("course.toml: {e}"))?;
     let mut modules = Vec::new();
     let mut lessons = Vec::new();
 
@@ -108,12 +110,19 @@ fn load() -> Result<Course, String> {
             let (_, text) = embedded::LESSON_FILES
                 .iter()
                 .find(|(s, _)| s == slug)
-                .ok_or_else(|| format!("course.toml lists `{slug}` but content/lessons/{slug}.toml is missing"))?;
-            let file: LessonFile = toml::from_str(text).map_err(|e| format!("lessons/{slug}.toml: {e}"))?;
+                .ok_or_else(|| {
+                    format!("course.toml lists `{slug}` but content/lessons/{slug}.toml is missing")
+                })?;
+            let file: LessonFile =
+                toml::from_str(text).map_err(|e| format!("lessons/{slug}.toml: {e}"))?;
             indices.push(lessons.len());
             lessons.push(build_lesson(slug, &m.id, file)?);
         }
-        modules.push(Module { id: m.id, title: m.title, lessons: indices });
+        modules.push(Module {
+            id: m.id,
+            title: m.title,
+            lessons: indices,
+        });
     }
 
     for (slug, _) in embedded::LESSON_FILES {
@@ -125,8 +134,12 @@ fn load() -> Result<Course, String> {
 }
 
 fn build_lesson(slug: &str, module: &str, file: LessonFile) -> Result<Lesson, String> {
-    let generate = generators::by_name(&file.generator)
-        .ok_or_else(|| format!("lessons/{slug}.toml: unknown generator `{}`", file.generator))?;
+    let generate = generators::by_name(&file.generator).ok_or_else(|| {
+        format!(
+            "lessons/{slug}.toml: unknown generator `{}`",
+            file.generator
+        )
+    })?;
     let chips = file
         .chip
         .into_iter()
@@ -136,14 +149,24 @@ fn build_lesson(slug: &str, module: &str, file: LessonFile) -> Result<Lesson, St
             {
                 return Err(format!("lessons/{slug}.toml: unknown skill `{id}`"));
             }
-            Ok(Chip { syntax: c.syntax, meaning: c.meaning, example: c.example, skill: c.skill })
+            Ok(Chip {
+                syntax: c.syntax,
+                meaning: c.meaning,
+                example: c.example,
+                skill: c.skill,
+            })
         })
         .collect::<Result<_, _>>()?;
     Ok(Lesson {
         slug: slug.to_string(),
         title: file.title,
         module: module.to_string(),
-        intro: file.intro.split("\n\n").map(|p| p.trim().replace('\n', " ")).filter(|p| !p.is_empty()).collect(),
+        intro: file
+            .intro
+            .split("\n\n")
+            .map(|p| p.trim().replace('\n', " "))
+            .filter(|p| !p.is_empty())
+            .collect(),
         chips,
         task: file.task,
         goals: file.goals,

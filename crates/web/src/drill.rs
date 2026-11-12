@@ -175,39 +175,56 @@ pub fn DrillWorkspace(
             on_relative=Callback::new(move |on| settings.update(|s| s.relative_numbers = on))
         />
         <div class="statusline">
-            <span class="mode" data-mode=move || vim_mode.get()>
-                {move || match vim_mode.get().as_str() {
-                    "" => "EDIT".to_string(),
-                    m => m.to_uppercase(),
-                }}
-            </span>
+            <ModeBadge mode=vim_mode />
             <span>{status}</span>
-            <label class="vim-toggle" title="Vim keybindings">
-                <input
-                    type="checkbox"
-                    prop:checked=move || settings.vim().get()
-                    on:change=move |ev| {
-                        let on = event_target_checked(&ev);
-                        settings.update(|s| s.vim = on);
-                    }
-                />
-                "vim"
-            </label>
-            <Show when=move || settings.vim().get()>
-                <label class="vim-toggle" title="Relative line numbers (or :set rnu)">
-                    <input
-                        type="checkbox"
-                        prop:checked=move || settings.relative_numbers().get()
-                        on:change=move |ev| {
-                            let on = event_target_checked(&ev);
-                            settings.update(|s| s.relative_numbers = on);
-                        }
-                    />
-                    "rnu"
-                </label>
-            </Show>
+            <EditorToggles />
             <button class="link" on:click=move |_| on_restart.run(())>"↻ restart"</button>
         </div>
+    }
+}
+
+/// The editor mode, VimHero-style: NORMAL, INSERT, VISUAL (or EDIT without Vim).
+#[component]
+pub fn ModeBadge(mode: RwSignal<String>) -> impl IntoView {
+    view! {
+        <span class="mode" data-mode=move || mode.get()>
+            {move || match mode.get().as_str() {
+                "" => "EDIT".to_string(),
+                m => m.to_uppercase(),
+            }}
+        </span>
+    }
+}
+
+/// The "vim" and "rnu" checkboxes for the status line.
+#[component]
+pub fn EditorToggles() -> impl IntoView {
+    let settings = use_settings();
+    view! {
+        <label class="vim-toggle" title="Vim keybindings">
+            <input
+                type="checkbox"
+                prop:checked=move || settings.vim().get()
+                on:change=move |ev| {
+                    let on = event_target_checked(&ev);
+                    settings.update(|s| s.vim = on);
+                }
+            />
+            "vim"
+        </label>
+        <Show when=move || settings.vim().get()>
+            <label class="vim-toggle" title="Relative line numbers (or :set rnu)">
+                <input
+                    type="checkbox"
+                    prop:checked=move || settings.relative_numbers().get()
+                    on:change=move |ev| {
+                        let on = event_target_checked(&ev);
+                        settings.update(|s| s.relative_numbers = on);
+                    }
+                />
+                "rnu"
+            </label>
+        </Show>
     }
 }
 

@@ -52,8 +52,18 @@ pub struct Goal {
 }
 
 impl Goal {
-    pub fn new(start: impl Into<String>, ideal: impl Into<String>, features: Vec<&'static str>) -> Self {
-        Self { start: start.into(), ideal: ideal.into(), features, require: Vec::new(), prompt: None }
+    pub fn new(
+        start: impl Into<String>,
+        ideal: impl Into<String>,
+        features: Vec<&'static str>,
+    ) -> Self {
+        Self {
+            start: start.into(),
+            ideal: ideal.into(),
+            features,
+            require: Vec::new(),
+            prompt: None,
+        }
     }
 
     pub fn with_prompt(mut self, prompt: impl Into<String>) -> Self {
@@ -84,8 +94,15 @@ pub fn effective_len(code: &str) -> usize {
 }
 
 pub fn judge(goal: &Goal, target: &Rendered, attempt: &Rendered, attempt_code: &str) -> Verdict {
-    if !attempt.looks_like(target) || !goal.require.iter().all(|r| attempt_code.contains(r.as_str())) {
+    if !attempt.looks_like(target)
+        || !goal
+            .require
+            .iter()
+            .all(|r| attempt_code.contains(r.as_str()))
+    {
         return Verdict::NotYet;
     }
-    Verdict::Solved { efficient: effective_len(attempt_code) <= effective_len(&goal.ideal) }
+    Verdict::Solved {
+        efficient: effective_len(attempt_code) <= effective_len(&goal.ideal),
+    }
 }

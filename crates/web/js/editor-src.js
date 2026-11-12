@@ -99,6 +99,17 @@ const theme = EditorView.theme(
   { dark: true },
 );
 
+// Errors must never propagate into Rust: an exception crossing into
+// WebAssembly aborts the whole app. Every method Rust calls is wrapped.
+const guard = (name, fn) =>
+  function (...args) {
+    try {
+      return fn.apply(this, args);
+    } catch (err) {
+      console.error(`editor.${name} failed`, err);
+    }
+  };
+
 export class Editor {
   constructor(parent, doc, vimEnabled, relative, onChange, onMode, onRelative) {
     this.onMode = onMode;
@@ -172,8 +183,12 @@ export class Editor {
     this.view.focus();
   }
 
-  // `ranges` is a flat [from, to, classIndex, ...] array; `classes` names them.
-  setHighlights(ranges, classes) {
+  // `ranges` is a flat [from, to, classIndex, ...] array; `classes` names
+  // them. `docLength` is the length of the text they were computed for: if
+  // the editor's text differs (e.g. a new goal hasn't arrived yet), the
+  // ranges would point past the end, so they're skipped.
+  setHighlights(ranges, classes, docLength) {
+    if (docLength !== this.view.state.doc.length) return;
     const decos = [];
     for (let i = 0; i + 2 < ranges.length; i += 3) {
       decos.push(mark(classes[ranges[i + 2]]).range(ranges[i], ranges[i + 1]));
@@ -188,4 +203,8 @@ export class Editor {
   destroy() {
     this.view.destroy();
   }
+}
+
+for (const name of ["setDoc", "setVim", "setRelative", "setHighlights", "focus", "destroy"]) {
+  Editor.prototype[name] = guard(name, Editor.prototype[name]);
 }

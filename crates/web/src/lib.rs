@@ -17,6 +17,7 @@ mod editor;
 pub mod fonts;
 mod lesson;
 mod practice;
+mod project;
 mod progress;
 mod settings;
 mod stats;

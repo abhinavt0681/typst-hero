@@ -221,7 +221,9 @@ later without rewriting anything.
 5. 🟡 **M5 — Tracks 2–3**: ✅ Functions module (text functions, arguments,
    images, figures, tables, alignment & spacing, review), ✅ Math module (math
    mode, scripts & fractions, symbols, functions, multi-line, LaTeX → Typst,
-   review), ✅ CodeMirror editor. ⬜ links/labels/references, ⬜ Project: Resume v1.
+   review), ✅ CodeMirror editor, ✅ Project: Resume (7 guided steps from
+   plain name to styled two-column resume, then "make it yours" + PDF
+   download made in the browser). ⬜ links/labels/references.
 6. 🟡 **M6 — Track 4**: ✅ Styling module (set text/par/numbering/page,
    show-set, show rules, style-guide checklists, review). ⬜ scoping,
    layout (grid, columns, place), resume v2, cover letter.

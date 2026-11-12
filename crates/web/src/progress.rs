@@ -21,6 +21,16 @@ pub struct Progress {
     pub skills: BTreeMap<String, u32>,
     /// Activity per local calendar day ("2026-11-13"), for the heatmap and streak.
     pub days: BTreeMap<String, Activity>,
+    /// Projects in progress: current step and the learner's document.
+    pub projects: BTreeMap<String, ProjectState>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ProjectState {
+    /// Index of the current step; equal to the step count once finished.
+    pub step: usize,
+    pub code: String,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -140,6 +150,26 @@ impl ProgressStore {
 
     pub fn finish_run(&self, slug: &str, run: Run) {
         self.update(|p| p.finish_run(today(), slug, run));
+    }
+
+    pub fn project(&self, slug: &str) -> Option<ProjectState> {
+        self.progress.with_untracked(|p| p.projects.get(slug).cloned())
+    }
+
+    /// Saves a project without notifying the UI (it changes on every
+    /// keystroke). Use `set_project_step` when the step changes.
+    pub fn save_project(&self, slug: &str, state: ProjectState) {
+        self.progress.update_untracked(|p| {
+            p.projects.insert(slug.to_string(), state);
+        });
+        save(&self.progress.get_untracked());
+    }
+
+    /// Saves a project and notifies the UI (e.g. the sidebar checkmark).
+    pub fn set_project(&self, slug: &str, state: ProjectState) {
+        self.update(|p| {
+            p.projects.insert(slug.to_string(), state);
+        });
     }
 
     pub fn finish_session(&self) {

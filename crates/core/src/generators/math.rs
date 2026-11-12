@@ -30,16 +30,30 @@ pub fn basics(rng: &mut Rng) -> Goal {
         ("alpha + beta", &["math-symbol"]),
         ("n^3 + n", &["math-sup"]),
     ];
-    const LEADS: &[&str] = &["the area is", "we know that", "recall", "note that", "this gives"];
+    const LEADS: &[&str] = &[
+        "the area is",
+        "we know that",
+        "recall",
+        "note that",
+        "this gives",
+    ];
     let (formula, feats) = *rng.pick(FORMULAS);
     let lead = *rng.pick(LEADS);
     let mut features = feats.to_vec();
     if rng.below(2) == 0 {
         features.push("math-inline");
-        Goal::new(format!("{lead} {formula} here"), format!("{lead} ${formula}$ here"), features)
+        Goal::new(
+            format!("{lead} {formula} here"),
+            format!("{lead} ${formula}$ here"),
+            features,
+        )
     } else {
         features.push("math-block");
-        Goal::new(format!("{lead}\n\n{formula}"), format!("{lead}\n\n$ {formula} $"), features)
+        Goal::new(
+            format!("{lead}\n\n{formula}"),
+            format!("{lead}\n\n$ {formula} $"),
+            features,
+        )
     }
 }
 
@@ -65,16 +79,24 @@ pub fn scripts(rng: &mut Rng) -> Goal {
 /// Symbols by name and shorthands for arrows and relations.
 pub fn symbols(rng: &mut Rng) -> Goal {
     let (v, w) = two_vars(rng);
-    let greek = *rng.pick(&["alpha", "beta", "gamma", "theta", "lambda", "sigma", "omega", "phi"]);
+    let greek = *rng.pick(&[
+        "alpha", "beta", "gamma", "theta", "lambda", "sigma", "omega", "phi",
+    ]);
     let (math, features): (String, &[&str]) = match rng.below(8) {
         0 => (format!("{v} -> {w}"), &["math-shorthand"]),
         1 => (format!("{v} != {w}"), &["math-shorthand"]),
         2 => (format!("{v} <= {w}"), &["math-shorthand"]),
         3 => (format!("{greek} + {v}"), &["math-symbol"]),
         4 => (format!("{v} in RR"), &["math-symbol"]),
-        5 => (format!("sum_(i=1)^n {v}_i"), &["math-symbol", "math-sub", "math-sup"]),
+        5 => (
+            format!("sum_(i=1)^n {v}_i"),
+            &["math-symbol", "math-sub", "math-sup"],
+        ),
         6 => (format!("{v} => {w}"), &["math-shorthand"]),
-        _ => (format!("lim_({v} -> oo) 1/{v}"), &["math-symbol", "math-shorthand", "math-frac"]),
+        _ => (
+            format!("lim_({v} -> oo) 1/{v}"),
+            &["math-symbol", "math-shorthand", "math-frac"],
+        ),
     };
     let mut features = features.to_vec();
     features.push("math-block");
@@ -111,7 +133,11 @@ pub fn alignment(rng: &mut Rng) -> Goal {
         2 => format!("{v} &= {k} \\\n{w} &= {}", k + 1),
         _ => format!("f({v}) &= {v}^2 \\\n  f'({v}) &= 2{v}"),
     };
-    Goal::new(empty(), format!("$ {math} $"), vec!["math-block", "math-align", "math-linebreak"])
+    Goal::new(
+        empty(),
+        format!("$ {math} $"),
+        vec!["math-block", "math-align", "math-linebreak"],
+    )
 }
 
 /// (LaTeX, Typst, skills)
@@ -120,7 +146,11 @@ const LATEX: &[(&str, &str, &[&str])] = &[
     (r"\sqrt{x}", "sqrt(x)", &["math-call"]),
     (r"x^{n+1}", "x^(n+1)", &["math-sup"]),
     (r"\alpha + \beta", "alpha + beta", &["math-symbol"]),
-    (r"\sum_{i=1}^{n} i", "sum_(i=1)^n i", &["math-symbol", "math-sub", "math-sup"]),
+    (
+        r"\sum_{i=1}^{n} i",
+        "sum_(i=1)^n i",
+        &["math-symbol", "math-sub", "math-sup"],
+    ),
     (r"x \in \mathbb{R}", "x in RR", &["math-symbol"]),
     (r"a \leq b", "a <= b", &["math-shorthand"]),
     (r"a \cdot b", "a dot b", &["math-symbol"]),
@@ -128,7 +158,11 @@ const LATEX: &[(&str, &str, &[&str])] = &[
     (r"\left( \frac{1}{2} \right)", "(1/2)", &["math-frac"]),
     (r"\vec{v}", "arrow(v)", &["math-call"]),
     (r"\hat{x}", "hat(x)", &["math-call"]),
-    (r"\int_0^1 x \, dx", "integral_0^1 x dif x", &["math-symbol", "math-sub", "math-sup"]),
+    (
+        r"\int_0^1 x \, dx",
+        "integral_0^1 x dif x",
+        &["math-symbol", "math-sub", "math-sup"],
+    ),
     (r"x \neq 0", "x != 0", &["math-shorthand"]),
     (r"\binom{n}{k}", "binom(n, k)", &["math-call"]),
     (r"a \to b", "a -> b", &["math-shorthand"]),
@@ -148,7 +182,8 @@ pub fn latex(rng: &mut Rng) -> Goal {
     features.sort_unstable();
     features.dedup();
     let latex = tex.join(r" \quad ");
-    Goal::new(empty(), format!("$ {} $", typ.join(" quad ")), features).with_prompt(format!("LaTeX: {latex}"))
+    Goal::new(empty(), format!("$ {} $", typ.join(" quad ")), features)
+        .with_prompt(format!("LaTeX: {latex}"))
 }
 
 /// A mix of everything in the Math module.

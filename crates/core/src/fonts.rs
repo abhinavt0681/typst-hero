@@ -38,7 +38,10 @@ pub struct FontSet {
 
 impl FontSet {
     fn new(fonts: Vec<Font>) -> Self {
-        Self { book: LazyHash::new(FontBook::from_fonts(&fonts)), fonts }
+        Self {
+            book: LazyHash::new(FontBook::from_fonts(&fonts)),
+            fonts,
+        }
     }
 }
 
@@ -98,7 +101,6 @@ pub fn embedded_fonts() -> Vec<(String, Font)> {
 /// The raw file for a named face, for the server to send to browsers.
 #[cfg(feature = "embedded-fonts")]
 pub fn embedded_font_file(name: &str) -> Option<&'static [u8]> {
-    typst_assets::fonts().find(|data| {
-        Font::iter(Bytes::new(*data)).any(|font| font_name(font.info()) == name)
-    })
+    typst_assets::fonts()
+        .find(|data| Font::iter(Bytes::new(*data)).any(|font| font_name(font.info()) == name))
 }

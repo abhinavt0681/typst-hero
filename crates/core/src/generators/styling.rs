@@ -9,7 +9,15 @@
 use crate::exercise::Goal;
 use crate::rng::Rng;
 
-const HEADINGS: &[&str] = &["Introduction", "Background", "Method", "Results", "Discussion", "Conclusion", "Outlook"];
+const HEADINGS: &[&str] = &[
+    "Introduction",
+    "Background",
+    "Method",
+    "Results",
+    "Discussion",
+    "Conclusion",
+    "Outlook",
+];
 
 const SENTENCES: &[&str] = &[
     "Glaciers move slowly but they shape entire valleys over time.",
@@ -27,13 +35,27 @@ const SENTENCES: &[&str] = &[
 fn paragraph(rng: &mut Rng, marked: bool) -> String {
     let count = 2 + rng.below(2);
     let picks = rng.distinct(SENTENCES.len(), count);
-    let mut text = picks.into_iter().map(|i| SENTENCES[i]).collect::<Vec<_>>().join(" ");
+    let mut text = picks
+        .into_iter()
+        .map(|i| SENTENCES[i])
+        .collect::<Vec<_>>()
+        .join(" ");
     if marked {
-        text = text.replacen("clear", "*clear*", 1).replacen("slowly", "_slowly_", 1);
-        for (plain, strong) in [("twelve", "*twelve*"), ("faster", "*faster*"), ("most", "*most*")] {
+        text = text
+            .replacen("clear", "*clear*", 1)
+            .replacen("slowly", "_slowly_", 1);
+        for (plain, strong) in [
+            ("twelve", "*twelve*"),
+            ("faster", "*faster*"),
+            ("most", "*most*"),
+        ] {
             text = text.replacen(plain, strong, 1);
         }
-        for (plain, emph) in [("closer", "_closer_"), ("winter", "_winter_"), ("water", "_water_")] {
+        for (plain, emph) in [
+            ("closer", "_closer_"),
+            ("winter", "_winter_"),
+            ("water", "_water_"),
+        ] {
             text = text.replacen(plain, emph, 1);
         }
         // Guarantee something for `strong` and `emph` show rules to act on.
@@ -64,7 +86,10 @@ fn document(rng: &mut Rng, sections: usize, levels: bool, marked: bool) -> Strin
 
 /// Plain paragraphs, no headings.
 fn paragraphs(rng: &mut Rng, count: usize) -> String {
-    (0..count).map(|_| paragraph(rng, false)).collect::<Vec<_>>().join("\n\n")
+    (0..count)
+        .map(|_| paragraph(rng, false))
+        .collect::<Vec<_>>()
+        .join("\n\n")
 }
 
 fn styled(rules: &[&str], doc: &str) -> String {
@@ -72,7 +97,11 @@ fn styled(rules: &[&str], doc: &str) -> String {
 }
 
 fn goal(doc: String, rules: &[&str], features: Vec<&'static str>) -> Goal {
-    let keyword = if rules.iter().any(|r| r.starts_with("#show")) { "#show" } else { "#set" };
+    let keyword = if rules.iter().any(|r| r.starts_with("#show")) {
+        "#show"
+    } else {
+        "#set"
+    };
     Goal::new(doc.clone(), styled(rules, &doc), features).requiring([keyword])
 }
 
@@ -108,7 +137,11 @@ pub fn set_par(rng: &mut Rng) -> Goal {
     ]);
     let doc = paragraphs(rng, 3);
     let mut features = vec!["set"];
-    features.push(if rule.contains("true") { "bool" } else { "length" });
+    features.push(if rule.contains("true") {
+        "bool"
+    } else {
+        "length"
+    });
     goal(doc, &[rule], features)
 }
 
@@ -119,17 +152,37 @@ pub fn set_numbering(rng: &mut Rng) -> Goal {
             let pattern = *rng.pick(&["1.", "1.1", "I.", "A.", "1.a"]);
             let levels = pattern.contains("1.1") || pattern.contains("1.a");
             let doc = document(rng, 3, levels, false);
-            goal(doc, &[&format!("#set heading(numbering: \"{pattern}\")")], vec!["set", "str"])
+            goal(
+                doc,
+                &[&format!("#set heading(numbering: \"{pattern}\")")],
+                vec!["set", "str"],
+            )
         }
         1 => {
             let pattern = *rng.pick(&["a)", "i.", "(1)", "A."]);
-            let items: Vec<String> = rng.distinct(SENTENCES.len(), 3).into_iter().map(|i| format!("+ {}", SENTENCES[i])).collect();
-            goal(items.join("\n"), &[&format!("#set enum(numbering: \"{pattern}\")")], vec!["set", "str"])
+            let items: Vec<String> = rng
+                .distinct(SENTENCES.len(), 3)
+                .into_iter()
+                .map(|i| format!("+ {}", SENTENCES[i]))
+                .collect();
+            goal(
+                items.join("\n"),
+                &[&format!("#set enum(numbering: \"{pattern}\")")],
+                vec!["set", "str"],
+            )
         }
         _ => {
             let marker = *rng.pick(&["[--]", "[>]", "[+]", "[–]"]);
-            let items: Vec<String> = rng.distinct(SENTENCES.len(), 3).into_iter().map(|i| format!("- {}", SENTENCES[i])).collect();
-            goal(items.join("\n"), &[&format!("#set list(marker: {marker})")], vec!["set", "content-block"])
+            let items: Vec<String> = rng
+                .distinct(SENTENCES.len(), 3)
+                .into_iter()
+                .map(|i| format!("- {}", SENTENCES[i]))
+                .collect();
+            goal(
+                items.join("\n"),
+                &[&format!("#set list(marker: {marker})")],
+                vec!["set", "content-block"],
+            )
         }
     }
 }
@@ -148,17 +201,32 @@ pub fn set_page(rng: &mut Rng) -> Goal {
     ]);
     let doc = document(rng, 2, false, false);
     let mut features = vec!["set"];
-    features.push(if rule.contains("cm") { "length" } else if rule.contains('[') { "content-block" } else { "str" });
+    features.push(if rule.contains("cm") {
+        "length"
+    } else if rule.contains('[') {
+        "content-block"
+    } else {
+        "str"
+    });
     goal(doc, &[rule], features)
 }
 
 /// `#show selector: set …`: style one kind of element everywhere.
 pub fn show_set(rng: &mut Rng) -> Goal {
     let rule = match rng.below(4) {
-        0 => format!("#show heading: set text({})", rng.pick(&["blue", "red", "eastern", "purple"])),
+        0 => format!(
+            "#show heading: set text({})",
+            rng.pick(&["blue", "red", "eastern", "purple"])
+        ),
         1 => "#show heading: set align(center)".to_string(),
-        2 => format!("#show strong: set text({})", rng.pick(&["red", "blue", "eastern"])),
-        _ => format!("#show emph: set text({})", rng.pick(&["green", "purple", "blue"])),
+        2 => format!(
+            "#show strong: set text({})",
+            rng.pick(&["red", "blue", "eastern"])
+        ),
+        _ => format!(
+            "#show emph: set text({})",
+            rng.pick(&["green", "purple", "blue"])
+        ),
     };
     let doc = document(rng, 3, false, true);
     goal(doc, &[&rule], vec!["show-set"])
@@ -174,13 +242,21 @@ pub fn show_fn(rng: &mut Rng) -> Goal {
             let brand = *rng.pick(BRANDS);
             let f = *rng.pick(&["smallcaps", "strong", "emph", "underline"]);
             let doc = brand_document(rng, brand);
-            goal(doc, &[&format!("#show \"{brand}\": {f}")], vec!["show-fn", "str"])
+            goal(
+                doc,
+                &[&format!("#show \"{brand}\": {f}")],
+                vec!["show-fn", "str"],
+            )
         }
         1 => {
             let brand = *rng.pick(BRANDS);
             let full = format!("{brand} Labs Inc.");
             let doc = brand_document(rng, brand);
-            goal(doc, &[&format!("#show \"{brand}\": [{full}]")], vec!["show-fn", "str", "content-block"])
+            goal(
+                doc,
+                &[&format!("#show \"{brand}\": [{full}]")],
+                vec!["show-fn", "str", "content-block"],
+            )
         }
         _ => {
             let f = *rng.pick(&["smallcaps", "underline", "emph"]);
@@ -199,7 +275,11 @@ fn brand_document(rng: &mut Rng, brand: &str) -> String {
         format!("The {brand} team ships on Fridays."),
     ];
     let picks = rng.distinct(lines.len(), 3);
-    picks.into_iter().map(|i| lines[i].clone()).collect::<Vec<_>>().join(" ")
+    picks
+        .into_iter()
+        .map(|i| lines[i].clone())
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 /// (rule, checklist item) pairs from different areas, for style guides.
@@ -210,11 +290,20 @@ const GUIDE: &[&[(&str, &str)]] = &[
     ],
     &[
         ("#set par(justify: true)", "justified paragraphs"),
-        ("#set par(first-line-indent: 1em)", "first lines indented 1em"),
+        (
+            "#set par(first-line-indent: 1em)",
+            "first lines indented 1em",
+        ),
     ],
     &[
-        ("#set heading(numbering: \"1.\")", "headings numbered 1., 2., …"),
-        ("#set heading(numbering: \"I.\")", "headings numbered I., II., …"),
+        (
+            "#set heading(numbering: \"1.\")",
+            "headings numbered 1., 2., …",
+        ),
+        (
+            "#set heading(numbering: \"I.\")",
+            "headings numbered I., II., …",
+        ),
     ],
     &[
         ("#show heading: set align(center)", "headings centered"),
@@ -234,7 +323,11 @@ pub fn style_guide(rng: &mut Rng) -> Goal {
     let areas = rng.distinct(GUIDE.len(), count);
     let picked: Vec<(&str, &str)> = areas.into_iter().map(|a| *rng.pick(GUIDE[a])).collect();
     let rules: Vec<&str> = picked.iter().map(|(r, _)| *r).collect();
-    let checklist = picked.iter().map(|(_, item)| format!("• {item}")).collect::<Vec<_>>().join("\n");
+    let checklist = picked
+        .iter()
+        .map(|(_, item)| format!("• {item}"))
+        .collect::<Vec<_>>()
+        .join("\n");
     let doc = document(rng, 3, false, false);
     let mut features = vec![];
     if rules.iter().any(|r| r.starts_with("#set")) {
@@ -243,18 +336,41 @@ pub fn style_guide(rng: &mut Rng) -> Goal {
     if rules.iter().any(|r| r.contains(": set ")) {
         features.push("show-set");
     }
-    if rules.iter().any(|r| r.starts_with("#show") && !r.contains(": set ")) {
+    if rules
+        .iter()
+        .any(|r| r.starts_with("#show") && !r.contains(": set "))
+    {
         features.push("show-fn");
     }
-    let mut goal = Goal::new(doc.clone(), styled(&rules, &doc), features).with_prompt(format!("Style guide:\n{checklist}"));
+    let mut goal = Goal::new(doc.clone(), styled(&rules, &doc), features)
+        .with_prompt(format!("Style guide:\n{checklist}"));
     // Each requirement must be met with a rule, not by hand.
-    goal.require = rules.iter().map(|r| r.split('(').next().unwrap().split(':').next().unwrap().to_string()).collect();
+    goal.require = rules
+        .iter()
+        .map(|r| {
+            r.split('(')
+                .next()
+                .unwrap()
+                .split(':')
+                .next()
+                .unwrap()
+                .to_string()
+        })
+        .collect();
     goal.require.dedup();
     goal
 }
 
 /// A mix of everything in the Styling module.
 pub fn review(rng: &mut Rng) -> Goal {
-    const ALL: &[fn(&mut Rng) -> Goal] = &[set_text, set_par, set_numbering, set_page, show_set, show_fn, style_guide];
+    const ALL: &[fn(&mut Rng) -> Goal] = &[
+        set_text,
+        set_par,
+        set_numbering,
+        set_page,
+        show_set,
+        show_fn,
+        style_guide,
+    ];
     (rng.pick(ALL))(rng)
 }

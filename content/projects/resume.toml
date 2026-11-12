@@ -1,0 +1,216 @@
+title = "Your Resume"
+summary = "Build a clean, one-page resume step by step, then make it yours and download the PDF."
+
+intro = """
+You'll build a complete resume using what you've learned: headings, emphasis, escapes, line breaks, lists, functions and styling rules.
+
+Each step adds one idea. The target shows how the resume should look after the step. When yours matches, move on. Stuck? Open the solution.
+"""
+
+# After the last step: free editing, live preview, PDF download.
+finale = """
+Your resume is done. Now make it yours: replace Jane's details with your own, add jobs, change the color.
+
+Your work is saved in this browser as you type. When you're happy, download the PDF.
+"""
+
+# Each step's `target` is the complete document after that step.
+# `insert` is plain text appended to your code when the step starts, so you
+# format content instead of retyping it. `require` lists text your code must
+# contain (where the output alone can't tell).
+
+[[step]]
+title = "Your name"
+text = """
+Start with your name as a level-1 heading: `= Jane Doe`.
+
+On the next line, write the job title, `Software Engineer`, as plain text.
+"""
+target = '''
+= Jane Doe
+Software Engineer
+'''
+
+[[step]]
+title = "Contact details"
+text = """
+Add a contact line below the title. End the title line with `\\` so the contact details start on a new line.
+
+The `@` in an email address would start a reference, so escape it: `jane\\@example.com`. Separate the items with ` | `.
+
+Make the GitHub address a real link: `#link("https://github.com/janedoe")[github.com/janedoe]`.
+"""
+target = '''
+= Jane Doe
+Software Engineer \
+jane\@example.com | +1 555 0100 | #link("https://github.com/janedoe")[github.com/janedoe]
+'''
+require = ["#link("]
+
+[[step]]
+title = "Page setup"
+text = """
+Resumes are dense. At the very top, add two set rules: `#set page(margin: 1.5cm)` for narrower margins and `#set text(10pt)` for smaller text.
+
+Set rules apply to everything after them, so they go first.
+"""
+target = '''
+#set page(margin: 1.5cm)
+#set text(10pt)
+
+= Jane Doe
+Software Engineer \
+jane\@example.com | +1 555 0100 | #link("https://github.com/janedoe")[github.com/janedoe]
+'''
+require = ["#set page", "#set text"]
+
+[[step]]
+title = "Experience"
+text = """
+Your experience was added at the end, unformatted. Shape it like the target:
+
+`Experience` becomes a level-2 heading. Job titles are bold. Push each date range to the right edge with `#h(1fr)`, and end that line with `\\`. The two achievements become a bullet list.
+"""
+insert = '''
+
+Experience
+
+Senior Developer, Acme Corp 2021 to 2024
+Built the billing system used by two million customers.
+Cut invoice errors by 40%
+Led a team of four engineers
+
+Developer, Globex 2018 to 2021
+Maintained the internal analytics platform.
+'''
+target = '''
+#set page(margin: 1.5cm)
+#set text(10pt)
+
+= Jane Doe
+Software Engineer \
+jane\@example.com | +1 555 0100 | #link("https://github.com/janedoe")[github.com/janedoe]
+
+== Experience
+*Senior Developer*, Acme Corp #h(1fr) 2021 to 2024 \
+Built the billing system used by two million customers.
+- Cut invoice errors by 40%
+- Led a team of four engineers
+
+*Developer*, Globex #h(1fr) 2018 to 2021 \
+Maintained the internal analytics platform.
+'''
+require = ["#h(1fr)"]
+
+[[step]]
+title = "Education and skills"
+text = """
+Two more sections arrived at the end. Format them the same way: level-2 headings, the degree in bold, the years pushed right.
+"""
+insert = '''
+
+Education
+
+BSc Computer Science, North University 2014 to 2018
+
+Skills
+
+Rust, Typst, PostgreSQL, Linux, Git
+'''
+target = '''
+#set page(margin: 1.5cm)
+#set text(10pt)
+
+= Jane Doe
+Software Engineer \
+jane\@example.com | +1 555 0100 | #link("https://github.com/janedoe")[github.com/janedoe]
+
+== Experience
+*Senior Developer*, Acme Corp #h(1fr) 2021 to 2024 \
+Built the billing system used by two million customers.
+- Cut invoice errors by 40%
+- Led a team of four engineers
+
+*Developer*, Globex #h(1fr) 2018 to 2021 \
+Maintained the internal analytics platform.
+
+== Education
+*BSc Computer Science*, North University #h(1fr) 2014 to 2018
+
+== Skills
+Rust, Typst, PostgreSQL, Linux, Git
+'''
+
+[[step]]
+title = "A styled header"
+text = """
+Now the rules. Color every heading with `#show heading: set text(eastern)`.
+
+Center only your name with a more specific selector: `#show heading.where(level: 1): set align(center)`. The `.where(level: 1)` part picks level-1 headings only.
+
+Then center the title and contact line by wrapping them in `#align(center)[ … ]`.
+"""
+target = '''
+#set page(margin: 1.5cm)
+#set text(10pt)
+#show heading: set text(eastern)
+#show heading.where(level: 1): set align(center)
+
+= Jane Doe
+#align(center)[
+  Software Engineer \
+  jane\@example.com | +1 555 0100 | #link("https://github.com/janedoe")[github.com/janedoe]
+]
+
+== Experience
+*Senior Developer*, Acme Corp #h(1fr) 2021 to 2024 \
+Built the billing system used by two million customers.
+- Cut invoice errors by 40%
+- Led a team of four engineers
+
+*Developer*, Globex #h(1fr) 2018 to 2021 \
+Maintained the internal analytics platform.
+
+== Education
+*BSc Computer Science*, North University #h(1fr) 2014 to 2018
+
+== Skills
+Rust, Typst, PostgreSQL, Linux, Git
+'''
+require = ["#show heading:", "where(level: 1)"]
+
+[[step]]
+title = "Skills in two columns"
+text = """
+Replace the skills line with a two-column grid. `#grid(columns: (1fr, 1fr), [...], [...])` makes two equal columns; each `[...]` is one cell.
+
+Put `*Languages:* Rust, Typst, SQL` in the first cell and `*Tools:* Linux, Git, Neovim` in the second.
+"""
+target = '''
+#set page(margin: 1.5cm)
+#set text(10pt)
+#show heading: set text(eastern)
+#show heading.where(level: 1): set align(center)
+
+= Jane Doe
+#align(center)[
+  Software Engineer \
+  jane\@example.com | +1 555 0100 | #link("https://github.com/janedoe")[github.com/janedoe]
+]
+
+== Experience
+*Senior Developer*, Acme Corp #h(1fr) 2021 to 2024 \
+Built the billing system used by two million customers.
+- Cut invoice errors by 40%
+- Led a team of four engineers
+
+*Developer*, Globex #h(1fr) 2018 to 2021 \
+Maintained the internal analytics platform.
+
+== Education
+*BSc Computer Science*, North University #h(1fr) 2014 to 2018
+
+== Skills
+#grid(columns: (1fr, 1fr), [*Languages:* Rust, Typst, SQL], [*Tools:* Linux, Git, Neovim])
+'''
+require = ["#grid("]

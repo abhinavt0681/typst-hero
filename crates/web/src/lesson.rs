@@ -163,7 +163,7 @@ fn Example(code: &'static str) -> impl IntoView {
 }
 
 /// Renders text, showing `backticked` parts as inline code.
-fn rich(text: &'static str) -> impl IntoView {
+pub fn rich(text: &'static str) -> impl IntoView {
     text.split('`')
         .enumerate()
         .map(|(i, part)| if i % 2 == 1 { view! { <code>{part}</code> }.into_any() } else { part.into_any() })
