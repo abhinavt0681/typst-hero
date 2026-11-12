@@ -1,0 +1,12 @@
+title = "Functions Review"
+generator = "functions-review"
+goals = 8
+
+intro = """
+Everything from this module: text functions, arguments, images, figures, tables, alignment and spacing.
+"""
+
+task = [
+  "Work out which function each target needs.",
+  "Shortest solution earns XP.",
+]

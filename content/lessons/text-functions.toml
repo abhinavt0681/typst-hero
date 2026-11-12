@@ -1,0 +1,32 @@
+title = "Calling Functions"
+generator = "text-functions"
+goals = 6
+
+intro = """
+Markup covers the common cases. Everything else is a function call. In markup, start a call with `#`, then the function name.
+
+Many functions take content in square brackets: `#underline[word]`. The brackets hold markup, so `#underline[*very*]` works too.
+"""
+
+task = [
+  "Wrap the word that's styled in the target with the right function.",
+  "Try `underline`, `highlight`, `strike`, `overline` or `smallcaps`.",
+]
+
+[[chip]]
+syntax = "#underline[…]"
+meaning = "call a function with content"
+example = "This is #underline[important]."
+skill = "call"
+
+[[chip]]
+syntax = "#highlight[…]"
+meaning = "highlight text"
+example = "Read #highlight[this part] first."
+skill = "call"
+
+[[chip]]
+syntax = "#smallcaps[…]"
+meaning = "small capitals"
+example = "Signed, #smallcaps[the committee]."
+skill = "call"

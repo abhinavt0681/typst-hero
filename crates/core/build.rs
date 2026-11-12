@@ -26,5 +26,19 @@ fn main() {
     }
     out += "];\n";
 
+    // Sample files (images, data) every exercise can use, e.g. image("mountain.svg").
+    let mut assets: Vec<_> = fs::read_dir(content.join("assets"))
+        .expect("content/assets exists")
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.is_file())
+        .collect();
+    assets.sort();
+    out += "pub const ASSET_FILES: &[(&str, &[u8])] = &[\n";
+    for path in &assets {
+        let name = path.file_name().unwrap().to_str().unwrap();
+        out += &format!("    ({name:?}, include_bytes!({path:?})),\n");
+    }
+    out += "];\n";
+
     fs::write(Path::new(&env::var("OUT_DIR").unwrap()).join("content.rs"), out).unwrap();
 }

@@ -1,0 +1,27 @@
+title = "Symbols"
+generator = "math-symbols"
+goals = 8
+math = true
+
+intro = """
+Symbols have names: `alpha`, `pi`, `sum`, `RR` for the real numbers, `oo` for infinity.
+
+Common relations have shorthands: `->` is an arrow, `!=` is not-equal, `<=` and `>=` compare, `=>` implies.
+"""
+
+task = [
+  "Write the equation in the target.",
+  "Big operators like `sum` take limits with `_` and `^`.",
+]
+
+[[chip]]
+syntax = "alpha  RR  oo"
+meaning = "symbols by name"
+example = "$ alpha in RR, beta -> oo $"
+skill = "math-symbol"
+
+[[chip]]
+syntax = "->  !=  <="
+meaning = "shorthands"
+example = "$ x != y, a <= b $"
+skill = "math-shorthand"

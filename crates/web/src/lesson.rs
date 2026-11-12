@@ -11,7 +11,7 @@ use typst_hero_core::skills;
 use typst_hero_core::{Lesson, compile_str};
 
 use crate::challenge::Challenge;
-use crate::fonts::use_fonts_ready;
+use crate::fonts::{use_fonts_ready, use_math_ready};
 
 #[component]
 pub fn LessonPage() -> impl IntoView {
@@ -111,7 +111,11 @@ fn ChipRow(chip: &'static Chip) -> impl IntoView {
 #[component]
 fn Example(code: &'static str) -> impl IntoView {
     const MS_PER_CHAR: u64 = 45;
-    let ready = use_fonts_ready();
+    // Examples with math wait for the math font as well.
+    let base_ready = use_fonts_ready();
+    let math_ready = use_math_ready();
+    let has_math = code.contains('$');
+    let ready = Signal::derive(move || base_ready.get() && (!has_math || math_ready.get()));
     let chars: Vec<char> = code.chars().collect();
     let total = chars.len();
     let shown = RwSignal::new(0usize);

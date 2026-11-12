@@ -28,6 +28,8 @@ pub struct Lesson {
     pub task: Vec<String>,
     /// How many goals complete the challenge.
     pub goals: usize,
+    /// Goals contain math, so the math font must be loaded.
+    pub math: bool,
     /// Builds a fresh, randomized goal.
     pub generate: fn(&mut Rng) -> Goal,
 }
@@ -45,11 +47,18 @@ pub struct Goal {
     /// output alone can't tell the right technique from a shortcut, e.g. a
     /// commented-out line (vs. deleting it) or `--` (vs. pasting "–").
     pub require: Vec<String>,
+    /// Extra instructions shown with this goal, e.g. LaTeX to translate.
+    pub prompt: Option<String>,
 }
 
 impl Goal {
     pub fn new(start: impl Into<String>, ideal: impl Into<String>, features: Vec<&'static str>) -> Self {
-        Self { start: start.into(), ideal: ideal.into(), features, require: Vec::new() }
+        Self { start: start.into(), ideal: ideal.into(), features, require: Vec::new(), prompt: None }
+    }
+
+    pub fn with_prompt(mut self, prompt: impl Into<String>) -> Self {
+        self.prompt = Some(prompt.into());
+        self
     }
 
     pub fn requiring(mut self, require: impl IntoIterator<Item = impl Into<String>>) -> Self {
@@ -66,24 +75,12 @@ pub enum Verdict {
     Solved { efficient: bool },
 }
 
-/// Length used for the efficiency comparison: whitespace runs count as one
-/// character and surrounding whitespace is ignored, so formatting choices
-/// never cost XP. Only the markup you actually chose matters.
+/// Length used for the efficiency comparison: non-whitespace characters
+/// only. Whitespace that changes the output is already enforced by the
+/// output having to match, so spacing like `(a + b)/2` vs `(a+b)/2` never
+/// costs XP. Only the markup you actually chose matters.
 pub fn effective_len(code: &str) -> usize {
-    let mut len = 0;
-    let mut in_space = false;
-    for c in code.trim().chars() {
-        if c.is_whitespace() {
-            if !in_space {
-                len += 1;
-            }
-            in_space = true;
-        } else {
-            len += 1;
-            in_space = false;
-        }
-    }
-    len
+    code.chars().filter(|c| !c.is_whitespace()).count()
 }
 
 pub fn judge(goal: &Goal, target: &Rendered, attempt: &Rendered, attempt_code: &str) -> Verdict {

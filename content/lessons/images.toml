@@ -1,0 +1,26 @@
+title = "Images"
+generator = "images"
+goals = 6
+
+intro = """
+`#image("file.svg")` inserts an image. File names are strings, in double quotes.
+
+Named arguments control it: `width: 50%` is half the available width, `width: 4cm` an exact size.
+"""
+
+task = [
+  "Resize the image to match the target.",
+  "Percentages are relative to the page width; `cm` is absolute.",
+]
+
+[[chip]]
+syntax = "#image(\"x.svg\")"
+meaning = "insert an image"
+example = "#image(\"logo.svg\", width: 20%)"
+skill = "str"
+
+[[chip]]
+syntax = "width: 50%"
+meaning = "relative width"
+example = "#image(\"mountain.svg\", width: 50%)"
+skill = "ratio"

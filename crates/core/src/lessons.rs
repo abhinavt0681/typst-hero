@@ -12,7 +12,7 @@ use crate::exercise::{Chip, Lesson};
 use crate::generators;
 use crate::skills;
 
-mod embedded {
+pub(crate) mod embedded {
     include!(concat!(env!("OUT_DIR"), "/content.rs"));
 }
 
@@ -83,6 +83,9 @@ struct LessonFile {
     task: Vec<String>,
     #[serde(default)]
     chip: Vec<ChipFile>,
+    /// Whether goals contain math (the browser then loads the math font first).
+    #[serde(default)]
+    math: bool,
 }
 
 #[derive(Deserialize)]
@@ -144,6 +147,7 @@ fn build_lesson(slug: &str, module: &str, file: LessonFile) -> Result<Lesson, St
         chips,
         task: file.task,
         goals: file.goals,
+        math: file.math,
         generate,
     })
 }

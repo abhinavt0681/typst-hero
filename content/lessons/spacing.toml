@@ -1,0 +1,26 @@
+title = "Alignment and Spacing"
+generator = "spacing"
+goals = 6
+
+intro = """
+`#align(center)[…]` centers content; `right` and `left` work too.
+
+`#h(1fr)` inserts flexible space that fills the rest of the line. It pushes what follows to the right edge, which is how resumes put dates on the right.
+"""
+
+task = [
+  "Center or right-align lines, or push dates to the right edge.",
+  "Look at where each piece sits in the target.",
+]
+
+[[chip]]
+syntax = "#align(center)[…]"
+meaning = "center content"
+example = "#align(center)[A centered title]"
+skill = "call"
+
+[[chip]]
+syntax = "#h(1fr)"
+meaning = "fill the rest of the line"
+example = "Acme Corp #h(1fr) 2021 to 2024"
+skill = "fraction"

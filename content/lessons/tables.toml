@@ -1,0 +1,20 @@
+title = "Tables"
+generator = "tables"
+goals = 4
+
+intro = """
+`#table(columns: 2, [a], [b], [c], [d])` makes a table. Cells fill rows left to right; `columns` says how many per row.
+
+Each cell is content in square brackets, so cells can hold any markup.
+"""
+
+task = [
+  "Turn the lines into a table like the target.",
+  "Count the columns first.",
+]
+
+[[chip]]
+syntax = "#table(columns: 2, …)"
+meaning = "a table"
+example = "#table(columns: 2, [Name], [Age], [Ada], [36])"
+skill = "int"

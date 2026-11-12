@@ -1,0 +1,32 @@
+title = "Arguments"
+generator = "arguments"
+goals = 6
+
+intro = """
+Functions take arguments in parentheses. `#text(blue)[word]` colors a word; `#text(16pt)[word]` resizes it.
+
+Arguments can be named, like `#text(fill: blue, size: 16pt)`. Many common ones can also be given positionally, which is shorter: `#text(blue, 16pt)`.
+"""
+
+task = [
+  "Match the color and size of the styled word.",
+  "Named colors include red, blue, green, orange, purple and eastern.",
+]
+
+[[chip]]
+syntax = "#text(blue)[…]"
+meaning = "a color argument"
+example = "The #text(blue)[sky] is clear."
+skill = "call"
+
+[[chip]]
+syntax = "#text(16pt)[…]"
+meaning = "a size argument"
+example = "Make it #text(16pt)[bigger]."
+skill = "length"
+
+[[chip]]
+syntax = "#text(fill: red)[…]"
+meaning = "a named argument"
+example = "A #text(fill: red, size: 14pt)[warning]."
+skill = "call"

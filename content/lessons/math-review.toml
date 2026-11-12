@@ -1,0 +1,13 @@
+title = "Math Review"
+generator = "math-review"
+goals = 10
+math = true
+
+intro = """
+Everything from this module: math mode, scripts, fractions, symbols, functions, alignment and LaTeX translation.
+"""
+
+task = [
+  "Write each equation as briefly as you can.",
+  "Shortest solution earns XP.",
+]

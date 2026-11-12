@@ -10,7 +10,7 @@ use typst_hero_core::Lesson;
 use typst_hero_core::lessons::{COURSE, LESSONS};
 
 use crate::drill::{Drill, DrillWorkspace, Generator, Results};
-use crate::fonts::use_fonts_ready;
+use crate::fonts::{use_fonts_ready, use_math_ready};
 use crate::progress::use_progress;
 use crate::time::now_ms;
 
@@ -45,7 +45,11 @@ pub fn PracticePage() -> impl IntoView {
     let phase = RwSignal::new(Phase::Setup);
     let elapsed_ms = RwSignal::new(0.0);
     let clock = RwSignal::new(0.0);
-    let ready = use_fonts_ready();
+    let base_ready = use_fonts_ready();
+    let math_ready = use_math_ready();
+    // Wait for the math font only if a selected lesson has math.
+    let needs_math = move || selected.with(|sel| drillable().any(|l| l.math && sel.contains(&l.slug)));
+    let ready = Signal::derive(move || base_ready.get() && (!needs_math() || math_ready.get()));
     let store = use_progress();
 
     let pool = move || -> Vec<Generator> {
@@ -191,7 +195,7 @@ pub fn PracticePage() -> impl IntoView {
                         <div class="ready">
                             <p class="muted">"Pick lessons and a mode above."</p>
                             <button class="button" disabled=move || !ready.get() on:click=move |_| start()>
-                                {move || if ready.get() { "▶ Start practice" } else { "Loading the Typst compiler…" }}
+                                {move || if ready.get() { "▶ Start practice" } else if base_ready.get() { "Loading math font…" } else { "Loading the Typst compiler…" }}
                             </button>
                             <p class="muted small"><kbd>"Enter"</kbd> " to start"</p>
                         </div>

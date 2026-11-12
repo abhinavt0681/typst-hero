@@ -8,7 +8,7 @@ use leptos_router::components::A;
 use typst_hero_core::Lesson;
 
 use crate::drill::{Drill, DrillWorkspace, Pane, Results};
-use crate::fonts::use_fonts_ready;
+use crate::fonts::{use_fonts_ready, use_math_ready};
 use crate::progress::{Run, use_progress};
 use crate::time::now_ms;
 
@@ -31,7 +31,10 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
     let phase = RwSignal::new(Phase::Ready);
     let tab = RwSignal::new(Tab::Challenge);
     let elapsed_ms = RwSignal::new(0.0);
-    let ready = use_fonts_ready();
+    // Math lessons also wait for the math font.
+    let base_ready = use_fonts_ready();
+    let math_ready = use_math_ready();
+    let ready = Signal::derive(move || base_ready.get() && (!lesson.math || math_ready.get()));
     let store = use_progress();
 
     let start = move || {
@@ -75,7 +78,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                             <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
                         </Show>
                         <button class="button" disabled=move || !ready.get() on:click=move |_| start()>
-                            {move || if ready.get() { "▶ Start challenge" } else { "Loading…" }}
+                            {move || if ready.get() { "▶ Start challenge" } else if base_ready.get() { "Loading math font…" } else { "Loading…" }}
                         </button>
                         <p class="muted">{lesson.goals} " goals · a new one appears as soon as you match the target"</p>
                     </div>

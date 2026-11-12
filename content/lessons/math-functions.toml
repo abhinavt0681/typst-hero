@@ -1,0 +1,27 @@
+title = "Math Functions"
+generator = "math-functions"
+goals = 7
+math = true
+
+intro = """
+In math, functions need no `#`: `sqrt(x)`, `root(3, x)`, `vec(a, b)`, `binom(n, k)`, `abs(x)`.
+
+Put words in quotes to write them as text: `x = 1 "if" y > 0`.
+"""
+
+task = [
+  "Write the equation in the target.",
+  "Function arguments are separated by commas.",
+]
+
+[[chip]]
+syntax = "sqrt(x)"
+meaning = "square root"
+example = "$ sqrt(a^2 + b^2) $"
+skill = "math-call"
+
+[[chip]]
+syntax = "\"text\""
+meaning = "words in math"
+example = "$ x = 0 \"if\" y < 0 $"
+skill = "math-text"

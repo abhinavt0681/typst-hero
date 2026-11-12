@@ -9,7 +9,7 @@ use typst_hero_core::rng::Rng;
 use typst_hero_core::{Diagnostic, Goal, Rendered, Verdict, compile_str, judge};
 
 use crate::editor::CodeEditor;
-use crate::fonts::use_fonts_ready;
+use crate::fonts::{use_fonts_ready, use_math_ready};
 use crate::progress::{ProgressStore, use_progress};
 use crate::settings::use_settings;
 use crate::stats::SkillRow;
@@ -53,8 +53,9 @@ impl Drill {
         let first = (pool[rng.below(pool.len())])(&mut rng);
         let goal = RwSignal::new(first);
         let code = RwSignal::new(String::new());
-        // Recompile when fonts arrive, too (`ready.track()`).
+        // Recompile when fonts arrive, too (`track()`).
         let ready = use_fonts_ready();
+        let math_ready = use_math_ready();
         Self {
             rng: StoredValue::new(rng),
             pool: StoredValue::new(pool),
@@ -67,10 +68,12 @@ impl Drill {
             gained: RwSignal::new(BTreeMap::new()),
             target: Memo::new(move |_| {
                 ready.track();
+                math_ready.track();
                 goal.with(|g| compile_str(&g.ideal).ok())
             }),
             output: Memo::new(move |_| {
                 ready.track();
+                math_ready.track();
                 code.with(|c| compile_str(c))
             }),
         }
@@ -155,7 +158,9 @@ pub fn DrillWorkspace(
     let settings = use_settings();
     let vim_mode = RwSignal::new(String::new());
     let target = drill.target;
+    let prompt = move || drill.goal.with(|g| g.prompt.clone());
     view! {
+        {move || prompt().map(|p| view! { <div class="goal-prompt">{p}</div> })}
         <div class="panes">
             <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
             <OutputPane output=drill.output />

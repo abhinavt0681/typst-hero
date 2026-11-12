@@ -1,0 +1,27 @@
+title = "Scripts and Fractions"
+generator = "math-scripts"
+goals = 8
+math = true
+
+intro = """
+`^` makes a superscript and `_` a subscript. `/` makes a fraction.
+
+Each applies to the next single item. To include more, group with parentheses: `x^(n+1)`, `(a+b)/2`. The parentheses disappear when they're only for grouping.
+"""
+
+task = [
+  "Write the equation shown in the target.",
+  "Spaces don't matter for XP, only what you type.",
+]
+
+[[chip]]
+syntax = "x^2  x_1"
+meaning = "superscript, subscript"
+example = "$ x_1^2 + x_2^2 $"
+skill = "math-sup"
+
+[[chip]]
+syntax = "a/b"
+meaning = "fraction"
+example = "$ (a+b)/2 $"
+skill = "math-frac"

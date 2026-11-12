@@ -16,3 +16,29 @@ lessons = [
   "dashes",
   "writing-review",
 ]
+
+[[module]]
+id = "functions"
+title = "Functions"
+lessons = [
+  "text-functions",
+  "arguments",
+  "images",
+  "figures",
+  "tables",
+  "spacing",
+  "functions-review",
+]
+
+[[module]]
+id = "math"
+title = "Math"
+lessons = [
+  "math-basics",
+  "math-scripts",
+  "math-symbols",
+  "math-functions",
+  "math-alignment",
+  "latex",
+  "math-review",
+]

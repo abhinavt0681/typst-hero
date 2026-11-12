@@ -62,6 +62,15 @@ impl SandboxWorld {
             fonts: fonts::current(),
             today: None,
         }
+        .with_assets()
+    }
+
+    /// Sample files from `content/assets/`, available to every exercise.
+    fn with_assets(mut self) -> Self {
+        for (name, data) in crate::lessons::embedded::ASSET_FILES {
+            self = self.with_file(&format!("/{name}"), data.to_vec());
+        }
+        self
     }
 
     /// Make a file available at `path` (e.g. "/photo.png").

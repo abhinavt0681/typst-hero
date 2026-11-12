@@ -218,7 +218,10 @@ later without rewriting anything.
    🟡 **M3c — Polish**: ✅ keep last good render on error; ⬜ optional Vim keystroke XP.
 4. **M4 — Stats & accounts**: per-feature levels, heatmap, streak; review-inefficient-goals
    screen; Postgres + SQLx, GitHub sign-in, progress sync.
-5. **M5 — Tracks 2–3**, CodeMirror editor, Project: Resume v1.
+5. 🟡 **M5 — Tracks 2–3**: ✅ Functions module (text functions, arguments,
+   images, figures, tables, alignment & spacing, review), ✅ Math module (math
+   mode, scripts & fractions, symbols, functions, multi-line, LaTeX → Typst,
+   review), ✅ CodeMirror editor. ⬜ links/labels/references, ⬜ Project: Resume v1.
 6. **M6 — Track 4** (transform exercises), resume v2, cover letter.
 7. **M7 — Track 5** (rule exercises with hidden variants), resume v3, invoice, legal.
 8. **M8 — Track 6**, packages/templates, reference pages, deploy.

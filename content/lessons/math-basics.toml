@@ -1,0 +1,27 @@
+title = "Math Mode"
+generator = "math-basics"
+goals = 6
+math = true
+
+intro = """
+Put math between dollar signs. `$x^2$` is inline math, inside a sentence.
+
+Add spaces inside the dollars, `$ x^2 $`, and the equation gets its own centered block. Letters become variables, and names like `pi` and `alpha` become symbols.
+"""
+
+task = [
+  "Turn the formula into math, inline or as a block, like the target.",
+  "A block equation sits on its own line.",
+]
+
+[[chip]]
+syntax = "$x^2$"
+meaning = "inline math"
+example = "The area is $pi r^2$."
+skill = "math-inline"
+
+[[chip]]
+syntax = "$ x^2 $"
+meaning = "block math"
+example = "We know\n$ a^2 + b^2 = c^2 $"
+skill = "math-block"

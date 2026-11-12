@@ -4,6 +4,9 @@
 use crate::exercise::Goal;
 use crate::rng::Rng;
 
+mod functions;
+mod math;
+
 /// Finds a generator by the name used in lesson files.
 pub fn by_name(name: &str) -> Option<fn(&mut Rng) -> Goal> {
     Some(match name {
@@ -17,6 +20,20 @@ pub fn by_name(name: &str) -> Option<fn(&mut Rng) -> Goal> {
         "linebreaks" => linebreaks,
         "dashes" => dashes,
         "writing-review" => writing_review,
+        "text-functions" => functions::text_functions,
+        "arguments" => functions::arguments,
+        "images" => functions::images,
+        "figures" => functions::figures,
+        "tables" => functions::tables,
+        "spacing" => functions::spacing,
+        "functions-review" => functions::review,
+        "math-basics" => math::basics,
+        "math-scripts" => math::scripts,
+        "math-symbols" => math::symbols,
+        "math-functions" => math::functions,
+        "math-alignment" => math::alignment,
+        "latex" => math::latex,
+        "math-review" => math::review,
         _ => return None,
     })
 }

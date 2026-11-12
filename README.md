@@ -30,8 +30,9 @@ cargo test -p typst-hero-core  # core tests
 | `crates/core/src/exercise.rs` | Lessons, goals, and judging (matches target? efficient?) |
 | `content/course.toml` | The course outline: modules and lesson order |
 | `content/lessons/*.toml` | Lesson text, syntax chips and examples (edit these to change a lesson) |
+| `content/assets/` | Sample images every exercise can use, e.g. `image("mountain.svg")` |
 | `crates/core/src/lessons.rs` | Loads and validates the content files |
-| `crates/core/src/generators.rs` | The random goal generators, referenced by name from lesson files |
+| `crates/core/src/generators.rs` (+ `generators/`) | The random goal generators, referenced by name from lesson files |
 | `crates/core/src/skills.rs` | The skill tree (every piece of Typst syntax) and XP levels |
 | `crates/web/src/main.rs` | The Axum server (server-side rendering) |
 | `crates/web/src/app.rs` | Page shell, routes, header, sidebar, home page |

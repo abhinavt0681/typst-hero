@@ -1,0 +1,20 @@
+title = "Figures and Captions"
+generator = "figures"
+goals = 5
+
+intro = """
+A figure wraps an image (or table) with a caption and a number, like "Figure 1".
+
+Inside the parentheses you're already in code, so the image needs no `#`: `#figure(image("x.svg"), caption: [A caption.])`.
+"""
+
+task = [
+  "Turn the image into a figure with the caption shown in the target.",
+  "Captions are content, so they go in square brackets.",
+]
+
+[[chip]]
+syntax = "#figure(…, caption: […])"
+meaning = "figure with a caption"
+example = "#figure(image(\"chart.svg\", width: 40%), caption: [Sales.])"
+skill = "content-block"

@@ -1,0 +1,21 @@
+title = "Multi-line Equations"
+generator = "math-alignment"
+goals = 5
+math = true
+
+intro = """
+Inside a block equation, `\\` starts a new line.
+
+Put `&` where the lines should line up, usually before the `=`. Every line's `&` sits in the same column.
+"""
+
+task = [
+  "Write the multi-line equation, aligned like the target.",
+  "Each line needs its own `&`.",
+]
+
+[[chip]]
+syntax = "&=  \\"
+meaning = "align and break lines"
+example = "$ x &= 2 + 3 \\\n  &= 5 $"
+skill = "math-align"

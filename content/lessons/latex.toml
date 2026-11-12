@@ -1,0 +1,15 @@
+title = "From LaTeX"
+generator = "latex"
+goals = 10
+math = true
+
+intro = """
+Coming from LaTeX? Typst math is shorter. Commands lose their backslash, `\\frac{a}{b}` becomes `a/b`, and braces become parentheses.
+
+Each goal shows LaTeX. Write the same equation in Typst.
+"""
+
+task = [
+  "Translate the LaTeX above the target into Typst.",
+  "`\\quad` is `quad`, `\\mathbb{R}` is `RR`, `\\infty` is `oo`.",
+]
