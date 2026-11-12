@@ -164,24 +164,36 @@ button.toggle {
 .errors .hint { color: var(--muted); }
 
 .editor {
-  display: block;
-  width: 100%;
-  min-height: 150px;
   margin-top: 14px;
-  padding: 14px;
-  resize: vertical;
-  background: var(--bg);
-  color: var(--text);
+  min-height: 150px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font: 16px/1.6 var(--mono);
-  caret-color: var(--accent);
+  background: var(--bg);
 }
-.editor:focus { outline: none; border-color: var(--accent); }
+.editor .cm-editor { min-height: 150px; }
+
+/* Typst syntax colors (classes come from Typst's own highlighter). */
+.typ-heading { color: #82aaff; font-weight: 700; }
+.typ-strong { font-weight: 700; color: #ffcb6b; }
+.typ-emph { font-style: italic; color: #c3e88d; }
+.typ-marker, .typ-term { color: #f78c6c; }
+.typ-raw, .typ-str { color: #c3e88d; }
+.typ-func { color: #82aaff; }
+.typ-key { color: #c792ea; }
+.typ-num { color: #f78c6c; }
+.typ-comment { color: var(--muted); font-style: italic; }
+.typ-escape, .typ-label, .typ-ref, .typ-link { color: #89ddff; }
+.typ-punct, .typ-op, .typ-math-delim, .typ-math-op { color: #89ddff; }
+.typ-error { text-decoration: underline wavy var(--error); }
 
 .statusline { display: flex; align-items: center; gap: 16px; margin-top: 10px; font-size: 13px; color: var(--muted); }
-.statusline .mode { background: #82aaff; color: var(--bg-sunk); font-weight: 700; padding: 1px 10px; border-radius: 3px; }
-.statusline .link { margin-left: auto; }
+.statusline .mode { background: #82aaff; color: var(--bg-sunk); font-weight: 700; padding: 1px 10px; border-radius: 3px; min-width: 76px; text-align: center; }
+.statusline .mode[data-mode^="insert"] { background: var(--accent); }
+.statusline .mode[data-mode^="visual"] { background: #c792ea; }
+.statusline .mode[data-mode="replace"] { background: var(--error); }
+.vim-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; margin-left: auto; }
+.vim-toggle input { accent-color: var(--accent); }
+
 
 /* ---------- summary ---------- */
 

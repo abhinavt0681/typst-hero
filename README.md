@@ -33,7 +33,14 @@ cargo test -p typst-hero-core  # core tests
 | `crates/web/src/app.rs` | Page shell, routes, header, sidebar, home page |
 | `crates/web/src/lesson.rs` | Lesson page: intro, syntax chips with examples, pager |
 | `crates/web/src/challenge.rs` | The live challenge: editor, target vs output, summary |
+| `crates/web/src/editor.rs` | The code editor component (CodeMirror + Vim), driven from Rust |
+| `crates/web/js/editor-src.js` | The only hand-written JavaScript: a thin CodeMirror wrapper |
+| `crates/web/js/editor.js` | Its prebuilt bundle (committed; regenerate with `scripts/vendor-editor.sh`, which needs Node) |
+| `crates/core/src/highlight.rs` | Syntax highlighting with Typst's own parser |
 | `crates/web/style/main.css` | All styles |
+
+Building and running never needs Node. Only `scripts/vendor-editor.sh`, used
+when upgrading CodeMirror, does.
 
 The `core` crate is used twice: by the server to pre-render pages, and in the
 browser (compiled to WebAssembly) to compile your code on every keystroke.

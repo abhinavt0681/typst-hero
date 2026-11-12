@@ -201,7 +201,12 @@ later without rewriting anything.
   (hyphenation, CSL styles, syntax definitions) and code. Next steps: hashed
   file names + immutable caching, compile in a Web Worker so the page is
   usable while it loads, measure what can be trimmed.
-- The plain textarea will become CodeMirror (syntax highlighting, Vim mode).
+- ✅ CodeMirror editor with Vim mode (toggle, remembered) and Typst syntax
+  highlighting from Typst's own parser.
+- Idea: in Vim mode, also score keystroke efficiency (VimHero-style) on top of
+  Typst idiom efficiency.
+- While the learner's code has an error, keep showing the last good render
+  next to the error instead of replacing it.
 
 ## Appendix A — Capstone: continuous affidavit numbering
 

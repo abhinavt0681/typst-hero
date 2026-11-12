@@ -12,9 +12,11 @@
 
 pub mod app;
 mod challenge;
+mod editor;
 pub mod fonts;
 mod lesson;
 mod progress;
+mod settings;
 mod time;
 
 #[cfg(feature = "hydrate")]

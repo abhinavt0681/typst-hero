@@ -10,6 +10,7 @@ use typst_hero_core::lessons::LESSONS;
 use crate::fonts::{font_url, provide_fonts};
 use crate::lesson::LessonPage;
 use crate::progress::{provide_progress, use_progress};
+use crate::settings::provide_settings;
 
 /// The outer HTML document, rendered on the server.
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -40,6 +41,7 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
     provide_fonts();
     provide_progress();
+    provide_settings();
     view! {
         <Stylesheet id="leptos" href="/pkg/typst-hero.css" />
         <Title formatter=|t: String| if t.is_empty() { "typst-hero".into() } else { format!("{t} | typst-hero") } />

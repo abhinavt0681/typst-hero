@@ -3,14 +3,15 @@
 //! Every keystroke recompiles the learner's code with the real Typst compiler
 //! (running in the browser as WebAssembly) and compares it with the target.
 
-use leptos::html;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use typst_hero_core::rng::Rng;
 use typst_hero_core::{Diagnostic, Goal, Lesson, Rendered, Verdict, compile_str, judge};
 
+use crate::editor::CodeEditor;
 use crate::fonts::use_fonts_ready;
 use crate::progress::{Run, use_progress};
+use crate::settings::use_settings;
 use crate::time::now_ms;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -52,7 +53,10 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
     let solved = RwSignal::new(Vec::<Solved>::new());
     let started_at = StoredValue::new(0.0);
     let elapsed_ms = RwSignal::new(0.0);
-    let editor = NodeRef::<html::Textarea>::new();
+    // Bumped whenever the editor's text must be replaced (new goal, restart).
+    let reset = RwSignal::new(0u64);
+    let vim_mode = RwSignal::new(String::new());
+    let settings = use_settings();
     let store = use_progress();
     let tab = RwSignal::new(Tab::Challenge);
 
@@ -75,11 +79,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
         solved.set(Vec::new());
         started_at.set_value(now_ms());
         phase.set(Phase::Running);
-        request_animation_frame(move || {
-            if let Some(el) = editor.get() {
-                let _ = el.focus();
-            }
-        });
+        reset.update(|r| *r += 1);
     };
 
     // Called after every edit: if the output matches, record it and move on.
@@ -99,6 +99,7 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                 let next = draw(Some(&g));
                 code.set(next.start.clone());
                 goal.set(next);
+                reset.update(|r| *r += 1);
             }
         }
     };
@@ -138,20 +139,32 @@ pub fn Challenge(lesson: &'static Lesson, next_slug: Option<&'static str>) -> im
                         <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
                         <Pane label="Your output" rendered=output.into() />
                     </div>
-                    <textarea
-                        class="editor"
-                        node_ref=editor
-                        spellcheck="false"
-                        autocomplete="off"
-                        prop:value=move || code.get()
-                        on:input=move |ev| {
-                            code.set(event_target_value(&ev));
-                            check();
-                        }
-                    ></textarea>
+                    <CodeEditor
+                        code
+                        reset=reset.into()
+                        on_edit=Callback::new(move |_| check())
+                        vim=settings.vim()
+                        mode=vim_mode
+                    />
                     <div class="statusline">
-                        <span class="mode">"TYPST"</span>
+                        <span class="mode" data-mode=move || vim_mode.get()>
+                            {move || match vim_mode.get().as_str() {
+                                "" => "EDIT".to_string(),
+                                m => m.to_uppercase(),
+                            }}
+                        </span>
                         <span>"goal " {move || solved.with(Vec::len) + 1} " / " {lesson.goals}</span>
+                        <label class="vim-toggle" title="Vim keybindings">
+                            <input
+                                type="checkbox"
+                                prop:checked=move || settings.vim().get()
+                                on:change=move |ev| {
+                                    let on = event_target_checked(&ev);
+                                    settings.update(|s| s.vim = on);
+                                }
+                            />
+                            "vim"
+                        </label>
                         <button class="link" on:click=move |_| start()>"↻ restart"</button>
                     </div>
                 }.into_any(),

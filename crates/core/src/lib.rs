@@ -5,6 +5,7 @@
 
 pub mod exercise;
 pub mod fonts;
+pub mod highlight;
 pub mod lessons;
 pub mod render;
 pub mod rng;
