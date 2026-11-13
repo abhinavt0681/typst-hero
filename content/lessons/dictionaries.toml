@@ -1,0 +1,26 @@
+title = "Dictionaries"
+generator = "dictionaries"
+goals = 5
+
+intro = """
+A dictionary groups named values: `(name: "Ada", born: 1815)`. Read one with a dot: `#person.name`.
+
+Dictionaries keep related facts together, which is handy for people, products or settings.
+"""
+
+task = [
+  "Replace each placeholder with the dictionary field it names.",
+  "Hidden checks swap in a different person.",
+]
+
+[[chip]]
+syntax = "(key: value)"
+meaning = "a dictionary"
+example = "#let p = (name: \"Ada\", born: 1815)\n#p.name, born #p.born."
+skill = "dict"
+
+[[chip]]
+syntax = "x.field"
+meaning = "read a field"
+example = "#let book = (title: \"Dune\")\nI read #book.title."
+skill = "field"

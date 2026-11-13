@@ -49,6 +49,11 @@ pub struct Goal {
     pub require: Vec<String>,
     /// Extra instructions shown with this goal, e.g. LaTeX to translate.
     pub prompt: Option<String>,
+    /// Hidden checks for scripting goals: each `(from, to)` swaps the data
+    /// (e.g. `n = 6` → `n = 9`) in both the learner's code and the ideal;
+    /// the outputs must still match. This catches hard-coded answers that
+    /// only *look* right for the visible data.
+    pub variants: Vec<(String, String)>,
 }
 
 impl Goal {
@@ -63,7 +68,13 @@ impl Goal {
             features,
             require: Vec::new(),
             prompt: None,
+            variants: Vec::new(),
         }
+    }
+
+    pub fn with_variants<A: Into<String>, B: Into<String>>(mut self, variants: impl IntoIterator<Item = (A, B)>) -> Self {
+        self.variants = variants.into_iter().map(|(a, b)| (a.into(), b.into())).collect();
+        self
     }
 
     pub fn with_prompt(mut self, prompt: impl Into<String>) -> Self {
@@ -83,6 +94,9 @@ pub enum Verdict {
     NotYet,
     /// Matches the target. `efficient` = at least as concise as the ideal.
     Solved { efficient: bool },
+    /// Looks right, but breaks when the data changes: the answer was typed
+    /// out by hand instead of computed from the data.
+    Hardcoded,
 }
 
 /// Length used for the efficiency comparison: non-whitespace characters
@@ -101,6 +115,17 @@ pub fn judge(goal: &Goal, target: &Rendered, attempt: &Rendered, attempt_code: &
             .all(|r| attempt_code.contains(r.as_str()))
     {
         return Verdict::NotYet;
+    }
+    for (from, to) in &goal.variants {
+        if !attempt_code.contains(from.as_str()) {
+            return Verdict::Hardcoded;
+        }
+        let mine = crate::compile_str(&attempt_code.replacen(from.as_str(), to, 1));
+        let ideal = crate::compile_str(&goal.ideal.replacen(from.as_str(), to, 1));
+        match (mine, ideal) {
+            (Ok(a), Ok(b)) if a.looks_like(&b) => {}
+            _ => return Verdict::Hardcoded,
+        }
     }
     Verdict::Solved {
         efficient: effective_len(attempt_code) <= effective_len(&goal.ideal),

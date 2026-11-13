@@ -223,11 +223,14 @@ later without rewriting anything.
    mode, scripts & fractions, symbols, functions, multi-line, LaTeX → Typst,
    review), ✅ CodeMirror editor, ✅ Project: Resume (7 guided steps from
    plain name to styled two-column resume, then "make it yours" + PDF
-   download made in the browser). ⬜ links/labels/references.
+   download made in the browser). ✅ labels/references. ⬜ links.
 6. 🟡 **M6 — Track 4**: ✅ Styling module (set text/par/numbering/page,
    show-set, show rules, style-guide checklists, review). ⬜ scoping,
    layout (grid, columns, place), resume v2, cover letter.
-7. **M7 — Track 5** (rule exercises with hidden variants), resume v3, invoice, legal.
+7. 🟡 **M7 — Track 5**: ✅ Scripting module (variables, dictionaries, if/else,
+   loops, array methods, functions, review) with hidden-variant judging that
+   rejects hard-coded answers. ⬜ closures, counters & `context`, capstone,
+   resume v3, invoice, legal.
 8. **M8 — Track 6**, packages/templates, reference pages, deploy.
 
 ### Known issues / backlog

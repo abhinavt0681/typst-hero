@@ -207,6 +207,31 @@ pub fn spacing(rng: &mut Rng) -> Goal {
     }
 }
 
+const SECTIONS: &[&str] = &["Methods", "Results", "Background", "Data", "Analysis"];
+
+/// Labels and references: `<label>` marks something, `@label` refers to it.
+/// The output of `@methods` ("Section 1") could also be typed by hand, so
+/// the goal requires a label and a reference in the code.
+pub fn references(rng: &mut Rng) -> Goal {
+    if rng.below(2) == 0 {
+        let picks = rng.distinct(SECTIONS.len(), 2);
+        let (a, b) = (SECTIONS[picks[0]], SECTIONS[picks[1]]);
+        let label = a.to_lowercase();
+        let pre = "#set heading(numbering: \"1.\")";
+        let start = format!("{pre}\n\n= {a}\nSome text.\n\n= {b}\nAs described in the {label} section, it works.");
+        let ideal = format!("{pre}\n\n= {a} <{label}>\nSome text.\n\n= {b}\nAs described in @{label}, it works.");
+        Goal::new(start, ideal, vec!["label", "ref"]).requiring(["<", "@"])
+    } else {
+        let img = *rng.pick(IMAGES);
+        let caption = *rng.pick(CAPTIONS);
+        let fig = format!("#figure(image(\"{img}\", width: 40%), caption: [{caption}])");
+        let lead = *rng.pick(&["The results are clear", "Look closely", "The trend is obvious", "Note the shape"]);
+        let start = format!("{fig}\n\n{lead}, see the figure above.");
+        let ideal = format!("{fig} <fig>\n\n{lead}, see @fig.");
+        Goal::new(start, ideal, vec!["label", "ref"]).requiring(["<", "@"])
+    }
+}
+
 /// A mix of everything in the Functions module.
 pub fn review(rng: &mut Rng) -> Goal {
     const ALL: &[fn(&mut Rng) -> Goal] =

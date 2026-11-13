@@ -1,0 +1,20 @@
+title = "Your Own Functions"
+generator = "script-functions"
+goals = 5
+
+intro = """
+`#let tag(t) = box(fill: yellow, t)` defines a function named `tag` with one parameter `t`. Call it like any built-in: `#tag[Rust]`.
+
+When you'd repeat the same styling several times, define it once as a function and call it.
+"""
+
+task = [
+  "Box every word as described. Define a function and call it for each word.",
+  "Repeating the full `box(...)` for every word works, but isn't efficient.",
+]
+
+[[chip]]
+syntax = "#let f(x) = …"
+meaning = "define a function"
+example = "#let shout(t) = upper(t)\n#shout[hello] #shout[world]"
+skill = "let-fn"

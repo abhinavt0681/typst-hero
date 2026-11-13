@@ -42,6 +42,8 @@ pub struct Drill {
     pub gained: RwSignal<BTreeMap<String, u32>>,
     pub target: Memo<Option<Rendered>>,
     pub output: Memo<Result<Rendered, Vec<Diagnostic>>>,
+    /// Set when the output looks right but fails a hidden check.
+    pub hint: RwSignal<Option<&'static str>>,
 }
 
 impl Drill {
@@ -64,6 +66,7 @@ impl Drill {
             goal,
             code,
             reset: RwSignal::new(0),
+            hint: RwSignal::new(None),
             solved: RwSignal::new(Vec::new()),
             gained: RwSignal::new(BTreeMap::new()),
             target: Memo::new(move |_| {
@@ -100,6 +103,7 @@ impl Drill {
     }
 
     fn show(&self, goal: Goal) {
+        self.hint.set(None);
         self.code.set(goal.start.clone());
         self.goal.set(goal);
         self.reset.update(|r| *r += 1);
@@ -123,7 +127,21 @@ impl Drill {
         };
         let goal = self.goal.get_untracked();
         let code = self.code.get_untracked();
-        let Verdict::Solved { efficient } = judge(&goal, &target, &output, &code) else { return false };
+        let efficient = match judge(&goal, &target, &output, &code) {
+            Verdict::Solved { efficient } => efficient,
+            Verdict::Hardcoded => {
+                self.hint.set(Some(
+                    "Your output matches, but it doesn't follow the data: if the values at the top changed, \
+                     yours wouldn't. Compute it from the variables instead of typing it out.",
+                ));
+                return false;
+            }
+            Verdict::NotYet => {
+                self.hint.set(None);
+                return false;
+            }
+        };
+        self.hint.set(None);
 
         let earned = self.store.solve_goal(&goal.features, efficient);
         self.gained.update(|m| earned.into_iter().for_each(|s| *m.entry(s).or_default() += 1));
@@ -165,6 +183,7 @@ pub fn DrillWorkspace(
             <Pane label="Target" rendered=Signal::derive(move || target.get().ok_or_else(Vec::new)) />
             <OutputPane output=drill.output />
         </div>
+        {move || drill.hint.get().map(|h| view! { <div class="hint-box">{h}</div> })}
         <CodeEditor
             code=drill.code
             reset=drill.reset.into()

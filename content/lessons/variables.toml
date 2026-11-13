@@ -1,0 +1,26 @@
+title = "Variables"
+generator = "variables"
+goals = 6
+
+intro = """
+`#let name = "Ada"` stores a value under a name. Write `#name` in your text to use it.
+
+Change the value once and every use updates. Names and dates that appear many times in a document belong in variables.
+"""
+
+task = [
+  "Replace each placeholder in brackets with the variable it names.",
+  "Hidden checks change the values at the top, so typing them by hand won't pass.",
+]
+
+[[chip]]
+syntax = "#let x = …"
+meaning = "define a variable"
+example = "#let name = \"Ada\"\nHello, #name!"
+skill = "let"
+
+[[chip]]
+syntax = "#x"
+meaning = "use it in text"
+example = "#let year = 1843\nThe year was #year."
+skill = "var"

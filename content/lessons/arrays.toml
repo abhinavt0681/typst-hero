@@ -1,0 +1,26 @@
+title = "Arrays and Methods"
+generator = "arrays"
+goals = 6
+
+intro = """
+An array is a list of values: `("a", "b", "c")`. Methods are functions that belong to a value, called with a dot: `items.len()`, `items.sorted()`, `items.first()`.
+
+`items.join(", ")` glues the items into one piece of text; `last: " and "` changes the final separator.
+"""
+
+task = [
+  "Produce what the instructions ask for, using array methods.",
+  "Hidden checks swap in a different array.",
+]
+
+[[chip]]
+syntax = "xs.join(\", \")"
+meaning = "join into text"
+example = "#let xs = (\"tea\", \"jam\", \"toast\")\n#xs.join(\", \", last: \" and \")"
+skill = "method"
+
+[[chip]]
+syntax = "xs.len()"
+meaning = "how many items"
+example = "#let xs = (1, 2, 3)\nThere are #xs.len() numbers."
+skill = "array"

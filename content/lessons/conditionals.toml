@@ -1,0 +1,20 @@
+title = "Conditionals"
+generator = "conditionals"
+goals = 5
+
+intro = """
+`#if condition [this] else [that]` picks content based on a value. Conditions compare with `<`, `>`, `<=`, `>=`, `==` and `!=`.
+
+The branches are content blocks, so they can hold any markup.
+"""
+
+task = [
+  "Write the word the instructions call for, using `#if` on the score.",
+  "Hidden checks try a score on the other side of the line.",
+]
+
+[[chip]]
+syntax = "#if x > 5 […] else […]"
+meaning = "choose content"
+example = "#let temp = 28\nIt is #if temp > 25 [hot] else [mild]."
+skill = "if"

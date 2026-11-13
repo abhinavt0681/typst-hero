@@ -357,3 +357,8 @@ button.toggle {
   .project-grid { grid-template-columns: 1fr; }
   .project-right { position: static; }
 }
+
+.hint-box {
+  margin-top: 12px; padding: 8px 12px; border-radius: 6px; font-size: 14px;
+  background: rgba(242, 180, 91, .1); border: 1px solid rgba(242, 180, 91, .45); color: var(--warn);
+}

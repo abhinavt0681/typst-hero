@@ -25,6 +25,7 @@ lessons = [
   "arguments",
   "images",
   "figures",
+  "references",
   "tables",
   "spacing",
   "functions-review",
@@ -55,4 +56,17 @@ lessons = [
   "show-fn",
   "style-guide",
   "styling-review",
+]
+
+[[module]]
+id = "scripting"
+title = "Scripting"
+lessons = [
+  "variables",
+  "dictionaries",
+  "conditionals",
+  "loops",
+  "arrays",
+  "script-functions",
+  "scripting-review",
 ]

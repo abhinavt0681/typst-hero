@@ -1,0 +1,26 @@
+title = "Labels and References"
+generator = "references"
+goals = 5
+
+intro = """
+Put a label in angle brackets after a heading, figure or equation: `= Methods <methods>`. Then refer to it with `@methods`.
+
+Typst writes the right text for you, like "Section 1" or "Figure 2", and keeps it correct when things move or get renumbered. Headings need numbering for this to work.
+"""
+
+task = [
+  "Label the heading or figure, then replace the vague phrase with a reference.",
+  "Typing \"Figure 1\" by hand won't count: use `<label>` and `@label`.",
+]
+
+[[chip]]
+syntax = "<label>"
+meaning = "name something"
+example = "#set heading(numbering: \"1.\")\n= Intro <intro>\nSee @intro."
+skill = "label"
+
+[[chip]]
+syntax = "@label"
+meaning = "refer to it"
+example = "#figure(image(\"chart.svg\", width: 30%), caption: [Sales.]) <sales>\nAs @sales shows, sales grew."
+skill = "ref"

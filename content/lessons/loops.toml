@@ -1,0 +1,28 @@
+title = "Loops"
+generator = "loops"
+goals = 6
+
+intro = """
+`#for x in items [ ... ]` repeats content once per item. `range(1, 6)` gives the numbers 1 to 5: the end is not included.
+
+Inside the brackets, `#x` is the current item.
+
+One trap: `_#x_` doesn't make italics, because `_` can be part of a name, so Typst reads `#x_`. Write `#emph(x)` instead.
+"""
+
+task = [
+  "Produce the output from the data at the top with a loop.",
+  "Hidden checks change the data, so writing out each item won't pass.",
+]
+
+[[chip]]
+syntax = "#for x in xs […]"
+meaning = "repeat for each item"
+example = "#for x in (\"a\", \"b\", \"c\") [(#x) ]"
+skill = "for"
+
+[[chip]]
+syntax = "range(1, n + 1)"
+meaning = "the numbers 1 to n"
+example = "#for i in range(1, 6) [#i ]"
+skill = "call"

@@ -1,0 +1,12 @@
+title = "Scripting Review"
+generator = "scripting-review"
+goals = 8
+
+intro = """
+Everything from this module: variables, dictionaries, conditionals, loops, array methods and your own functions.
+"""
+
+task = [
+  "Compute each output from the data at the top.",
+  "Hidden checks change the data, so compute, don't copy.",
+]

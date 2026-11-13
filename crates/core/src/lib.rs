@@ -95,6 +95,19 @@ mod tests {
         assert_eq!(judge(&goal, &target, &target, &goal.ideal), Verdict::Solved { efficient: true });
     }
 
+    /// Typing the values by hand looks right but fails the hidden variants.
+    #[test]
+    fn hardcoded_answers_are_caught() {
+        let goal = Goal::new("#let n = 3\n\n", "#let n = 3\n\n#for i in range(1, n + 1) [#i ]", vec!["for"])
+            .with_variants([("n = 3", "n = 5")]);
+        let target = compile_str(&goal.ideal).unwrap();
+        let by_hand = "#let n = 3\n\n1 2 3";
+        let out = compile_str(by_hand).unwrap();
+        assert!(out.looks_like(&target));
+        assert_eq!(judge(&goal, &target, &out, by_hand), Verdict::Hardcoded);
+        assert_eq!(judge(&goal, &target, &target, &goal.ideal), Verdict::Solved { efficient: true });
+    }
+
     #[test]
     fn judge_enforces_required_text() {
         // Commenting out vs deleting: same output, only one is the lesson.
@@ -129,6 +142,17 @@ mod tests {
                     lesson.slug,
                     goal.start
                 );
+                assert!(
+                    matches!(judge(&goal, &target, &target, &goal.ideal), Verdict::Solved { efficient: true }),
+                    "{}: ideal fails its own checks:\n{}",
+                    lesson.slug,
+                    goal.ideal
+                );
+                for (from, to) in &goal.variants {
+                    let swapped = compile_str(&goal.ideal.replacen(from.as_str(), to, 1))
+                        .unwrap_or_else(|e| panic!("{}: variant fails: {e:?}", lesson.slug));
+                    assert!(!swapped.looks_like(&target), "{}: variant `{to}` changes nothing", lesson.slug);
+                }
                 for r in &goal.require {
                     assert!(
                         goal.ideal.contains(r.as_str()),
