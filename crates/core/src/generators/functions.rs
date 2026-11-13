@@ -68,24 +68,42 @@ pub fn arguments(rng: &mut Rng) -> Goal {
 }
 
 const IMAGES: &[&str] = &["mountain.svg", "chart.svg", "logo.svg", "wave.svg"];
-const WIDTHS: &[&str] = &[
-    "30%", "40%", "50%", "60%", "70%", "80%", "3cm", "4cm", "5cm", "6cm", "7cm",
+/// Target widths, each with how the goal describes it. Ratios are given as
+/// fractions of the page so the learner translates the idea into a
+/// percentage; lengths are given exactly.
+const WIDTHS: &[(&str, &str)] = &[
+    ("20%", "a fifth of the page width"),
+    ("25%", "a quarter of the page width"),
+    ("50%", "half the page width"),
+    ("75%", "three quarters of the page width"),
+    ("40%", "two fifths of the page width"),
+    ("3cm", "3 cm wide"),
+    ("4cm", "4 cm wide"),
+    ("5cm", "5 cm wide"),
+    ("6cm", "6 cm wide"),
+    ("7cm", "7 cm wide"),
 ];
 
 /// Resize an image with the named `width` argument.
 pub fn images(rng: &mut Rng) -> Goal {
     let img = *rng.pick(IMAGES);
-    let width = *rng.pick(WIDTHS);
+    let (width, described) = *rng.pick(WIDTHS);
     let unit = if width.ends_with('%') {
         "ratio"
     } else {
         "length"
+    };
+    let prompt = if unit == "ratio" {
+        format!("Make the image {described}.")
+    } else {
+        format!("Make the image exactly {described}.")
     };
     Goal::new(
         format!("#image(\"{img}\")"),
         format!("#image(\"{img}\", width: {width})"),
         vec!["hash", "call", "str", unit],
     )
+    .with_prompt(prompt)
 }
 
 const CAPTIONS: &[&str] = &[

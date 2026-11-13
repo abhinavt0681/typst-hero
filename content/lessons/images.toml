@@ -9,8 +9,8 @@ Named arguments control it: `width: 50%` is half the available width, `width: 4c
 """
 
 task = [
-  "Resize the image to match the target.",
-  "Percentages are relative to the page width; `cm` is absolute.",
+  "Resize the image as each goal describes.",
+  "Fractions of the page become percentages (half → `50%`); `cm` is absolute.",
 ]
 
 [[chip]]
